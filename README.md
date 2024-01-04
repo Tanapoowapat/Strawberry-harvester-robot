@@ -4,4 +4,7 @@ Strawberry harvesting robot capable of determining ripeness levels based on asse
 ## Library&Tools
   - Ultralytics
   - OpenCV
+  - ONNX
 
+#Install
+```pip install -r requirements.txt```
