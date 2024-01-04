@@ -6,5 +6,5 @@ Strawberry harvesting robot capable of determining ripeness levels based on asse
   - OpenCV
   - ONNX
 
-#Install
+# Install
 ```pip install -r requirements.txt```
