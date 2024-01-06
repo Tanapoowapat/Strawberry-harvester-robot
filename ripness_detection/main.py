@@ -5,10 +5,11 @@ from process import load_model, load_video, process_frame
 
 
 video_path = "test_image/test.mp4"
+model_path = 'model/best.onnx'
 
 def main():
     
-    model = load_model()
+    model = load_model(model_path)
     cap = load_video(video_path)
 
     while True:
