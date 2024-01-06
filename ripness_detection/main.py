@@ -1,33 +1,32 @@
 import cv2
 import numpy as np
 from ultralytics import YOLO
-from utils.utils import crops_image
-
+from process import load_model, load_video, process_frame
 
 
 video_path = "test_image/test.mp4"
 
-if __name__ == "__main__":
-    # Load YOLOV8 ONNX
-    model = YOLO("model/best.onnx", task='segment')
+def main():
     
-    #Load Video mp4
-    cap = cv2.VideoCapture(video_path)
+    model = load_model()
+    cap = load_video(video_path)
 
-    ret = True
-
-    while ret:
+    while True:
         ret, frame = cap.read()
 
-        if ret:
+        if not ret:
+            break
 
-            #detect object and track
-            result = model(frame, vid_stride=True, stream_buffer=True)
-            
-            #plot result
-            frame_ = result[0].plot()
+        red_percent, green_percent, frame_ = process_frame(frame, model)
 
-            #visualize
-            cv2.imshow('frame', frame_)
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
+        print(f'Red : {red_percent}, Green : {green_percent}')
+
+        cv2.imshow('frame', frame_)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
