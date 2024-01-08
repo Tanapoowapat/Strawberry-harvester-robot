@@ -3,12 +3,14 @@ from ultralytics import YOLO
 from process import load_model, load_video, process_frame
 from utils.utils import get_mouse_cord
 
+
 video_path = "test_image/test.mp4"
 model_path = 'model/best.onnx'
 mask = cv2.imread('mask.png')
 
 def main():
     
+
     model = load_model(model_path)
     cap = load_video(video_path)
     # Get the frame width and height
@@ -30,6 +32,21 @@ def main():
         red_percent, green_percent, frame_ = process_frame(frame, mask, frame_width, frame_height, model)
 
         print(f'Red : {red_percent}, Green : {green_percent}')
+
+
+    model = load_model()
+    cap = load_video(video_path)
+
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        red_percent, green_percent, frame_ = process_frame(frame, model)
+
+        print(f'Red : {red_percent}, Green : {green_percent}')
+
 
         cv2.imshow('frame', frame_)
         if cv2.waitKey(25) & 0xFF == ord('q'):
