@@ -10,7 +10,6 @@ mask = cv2.imread('mask.png')
 
 def main():
     
-
     model = load_model(model_path)
     cap = load_video(video_path)
     # Get the frame width and height
@@ -32,13 +31,14 @@ def main():
         red_percent, green_percent, frame_ = process_frame(frame, mask, frame_width, frame_height, model)
 
         print(f'Red : {red_percent}, Green : {green_percent}')
-        
+
         cv2.imshow('frame', frame_)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
