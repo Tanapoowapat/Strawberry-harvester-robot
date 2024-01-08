@@ -25,5 +25,20 @@ def draw_box(ripness, image, bbox):
               bbox: [x1, y1, x2, y2]
     Return: Draw box on image with class + riness_level
     '''
-    
+
     return None
+
+def get_mouse_cord(event, x, y, flags, param):
+    '''
+    Prama:    event: mouse event
+              x: x cord
+              y: y cord
+              flags: flags
+              param: param
+    Return: Draw box on image with class + riness_level
+    '''
+    if event == cv2.EVENT_MOUSEMOVE:
+        print(f'x: {x}, y: {y}')
+
+    return None
+

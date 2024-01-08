@@ -20,11 +20,6 @@ def calculate_percent_in_mask(image, mask):
     # Convert color to HSV
     img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-    # Calculate the mean value for each channel within the specified mask
-    mean_val = cv2.mean(img_hsv, mask=mask)
-
-    # Convert the mean values to a NumPy array
-    mean_val_np = np.array(mean_val)
 
     # Define the target color range in HSV
     # Red mask1 (0-15)
