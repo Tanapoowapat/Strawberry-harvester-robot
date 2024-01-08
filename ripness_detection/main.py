@@ -32,9 +32,13 @@ def main():
 
         print(f'Red : {red_percent}, Green : {green_percent}')
 
+        cv2.imshow('frame', frame_)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
 
-    model = load_model()
-    cap = load_video(video_path)
+    cap.release()
+    cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
