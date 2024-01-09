@@ -1,38 +1,32 @@
 import cv2
-from ultralytics import YOLO
 from process import load_model, load_video, process_frame
-from utils.utils import get_mouse_cord
+from utils.utils import resize_mask
 
 
 video_path = "test_image/test.mp4"
 model_path = 'model/best.onnx'
-mask = cv2.imread('mask.png')
+BATCH_SIZE = 5
+
 
 def main():
-    
     model = load_model(model_path)
     cap = load_video(video_path)
-    # Get the frame width and height
-    cv2.namedWindow('Strwberry Ripeness Detection')
-    cv2.setMouseCallback('Strwberry Ripeness Detection', get_mouse_cord)
-
+    _, first_frame = cap.read()
+    mask = cv2.imread('mask.png')
+    mask = resize_mask(mask, first_frame.shape)
 
     while True:
         ret, frame = cap.read()
 
-        # Resize the frame
-        frame = cv2.resize(frame, (640, 640))
-        frame_height, frame_width, _ = frame.shape
-
         if not ret:
             break
 
-        
-        red_percent, green_percent, frame_ = process_frame(frame, mask, frame_width, frame_height, model)
+        # Resize the frame
+        frame = cv2.resize(frame, (640, 480))
 
-        print(f'Red : {red_percent}, Green : {green_percent}')
-
-        cv2.imshow('frame', frame_)
+        # Process the frame
+        ripness = process_frame(frame, mask, model)
+        print(ripness)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 

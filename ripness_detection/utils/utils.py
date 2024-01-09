@@ -42,3 +42,10 @@ def get_mouse_cord(event, x, y, flags, param):
 
     return None
 
+def resize_mask(mask, target_size):
+    '''
+    Prama:    mask: numpy array
+              target_size: tuple (width, height)
+    Return:   reize mask to target size
+    '''
+    return cv2.resize(mask, (target_size[0], target_size[1]))
