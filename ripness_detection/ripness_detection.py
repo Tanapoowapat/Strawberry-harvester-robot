@@ -1,9 +1,7 @@
 import cv2
 import numpy as np
 
-
-def calculate_percent_in_mask(image, mask):
-    
+def calculate_percent_in_mask(image, mask):    
     '''
     Parameters:
     image: The image to be analyzed. np.array
@@ -11,12 +9,8 @@ def calculate_percent_in_mask(image, mask):
 
     Output:
     red_color_percent: The percentage of red pixels in the specified mask. float
-    green_color_percent: The percentage of green pixels in the specified mask. float
-    mean_val_np: The mean value of each channel in the specified mask. np.array
-
-    
+    green_color_percent: The percentage of green pixels in the specified mask. float    
     '''
-    
     # Convert color to HSV
     img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
@@ -37,7 +31,6 @@ def calculate_percent_in_mask(image, mask):
     lower_green = np.array([20,40,50])
     upper_green = np.array([80,255,255])
     maskGreen = cv2.inRange(img_hsv, lower_green, upper_green)
-
 
     # Ensure the mask is single-channel (grayscale)
     if len(maskRed.shape) > 2:

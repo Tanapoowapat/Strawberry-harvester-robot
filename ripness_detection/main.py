@@ -2,18 +2,15 @@ import cv2
 from process import load_model, load_video, process_frame
 from utils.utils import resize_mask
 
-
 video_path = "test_image/test.mp4"
-model_path = 'model/best.onnx'
-BATCH_SIZE = 5
-
+model_path = "model/best.tflite"
+FRAME_SIZE = (640, 640)
 
 def main():
     model = load_model(model_path)
     cap = load_video(video_path)
-    _, first_frame = cap.read()
     mask = cv2.imread('mask.png')
-    mask = resize_mask(mask, first_frame.shape)
+    mask = resize_mask(mask, (FRAME_SIZE[0], FRAME_SIZE[1]))
 
     while True:
         ret, frame = cap.read()
@@ -21,18 +18,17 @@ def main():
         if not ret:
             break
 
-        # Resize the frame
-        frame = cv2.resize(frame, (640, 480))
+        # Resize the frame to match the model's expected input size
+        frame = cv2.resize(frame, (FRAME_SIZE[0], FRAME_SIZE[1]))
 
         # Process the frame
-        ripness = process_frame(frame, mask, model)
-        print(ripness)
+        ripeness = process_frame(frame, mask, model)
+        print(ripeness)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
