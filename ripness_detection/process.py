@@ -8,7 +8,7 @@ def load_model(model_path):
     return YOLO(model_path, task='segment')
 
 
-def load_video(video_path):
+def load_webcam(video_path):
     # Load video
     return cv2.VideoCapture(video_path)
 
@@ -75,15 +75,13 @@ def process_frame(frame, mask, model):
     mask = cv2.resize(mask, (frame.shape[1], frame.shape[0]))
     # Process the frame and mask
     result = cv2.bitwise_and(frame, mask)
-
     try:
         ripness, boxes = find_strawberry(result, model)
-
         if ripness is not None and boxes is not None:
             #check the center of the box in the between center of the frame size
             center = find_center(boxes)
             if int(frame.shape[1]//2) >= center <= int(frame.shape[1]//2) - 10:
-                return ripness
+                return ripness, center
             
     except Exception as e:
         print(e)
@@ -92,6 +90,6 @@ def process_frame(frame, mask, model):
     # Display the resulting frame
     cv2.imshow('frame', result)
 
-    return None
+    return None, None
 
  
