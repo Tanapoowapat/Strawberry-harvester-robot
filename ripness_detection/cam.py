@@ -1,12 +1,14 @@
 import cv2
 from ultralytics import YOLO
+import time
+prev_frame_time = 0
+new_frame_time = 0
 
 
 #LOAD MODEL
 model = YOLO('model/detection/best.pt')
 #LOAD WEBCAM 1 OR 0 for default webcam
 cap = cv2.VideoCapture(0)
-
 #READ THE FRAME
 while cap.isOpened():
     ret, frame = cap.read()
@@ -14,9 +16,19 @@ while cap.isOpened():
         print("Error: Could not read frame.")
         break
 
-
+    
     #PROCESS THE FRAME
-    results = model(frame, stream=True, half=True, device=0)
+    results = model(frame, stream=True, half=True, conf=0.9)
+
+    #CALCULATE FPS
+    new_frame_time = time.time() 
+    fps = 1/(new_frame_time-prev_frame_time) 
+    prev_frame_time = new_frame_time 
+    fps = int(fps) 
+    fps = str(fps)
+
+    cv2.putText(frame, fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX , 3, (100, 255, 0), 3, cv2.LINE_AA) 
+
 
     #DISPLAY THE FRAME
     for result in results:

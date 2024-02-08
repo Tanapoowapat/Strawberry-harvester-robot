@@ -3,6 +3,8 @@ import numpy as np
 from ultralytics import YOLO
 from ripness_detection import calculate_percent_in_mask
 
+
+
 def load_model(model_path):
     # Load YOLOV8 ONNX
     return YOLO(model_path, task='segment')
@@ -40,7 +42,6 @@ def ripness_level(red_percent, green_percent):
 def find_center(box):
     return (int(box[0]) + int(box[1]))//2
 
-
 def find_strawberry(frame, model):
     results = model(frame, conf=0.8)
     red_color_percent = 0
@@ -70,13 +71,9 @@ def find_strawberry(frame, model):
 
 
 
-def process_frame(frame, mask, model):
-    # Resize the mask to match the frame size
-    mask = cv2.resize(mask, (frame.shape[1], frame.shape[0]))
-    # Process the frame and mask
-    result = cv2.bitwise_and(frame, mask)
+def process_frame(frame, model):
     try:
-        ripness, boxes = find_strawberry(result, model)
+        ripness, boxes = find_strawberry(frame, model)
         if ripness is not None and boxes is not None:
             #check the center of the box in the between center of the frame size
             center = find_center(boxes)
@@ -87,9 +84,6 @@ def process_frame(frame, mask, model):
         print(e)
         pass
 
-    # Display the resulting frame
-    cv2.imshow('frame', result)
-
-    return None, None
+    return frame, None, None
 
  
