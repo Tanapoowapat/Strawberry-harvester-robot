@@ -3,8 +3,8 @@ import time
 from process import load_model, load_webcam, process_frame
 from utils.utils import resize_mask
 
-WEBCAM_DIVICE = 'test_image/test.mp4' #ใช้ Webcam เปลี่ยนตรงนี้เป็น 0
-model_path = "model/best.pt"
+WEBCAM_DIVICE = 0 #ใช้ Webcam เปลี่ยนตรงนี้เป็น 0
+model_path = "./model/best.pt"
 FRAME_SIZE = (640, 640)
 
 def main():
@@ -39,7 +39,7 @@ def main():
         ripness, box = process_frame(frame, mask, model)
         if ripness == "Full Ripe" and box is not None:
             COUNT += 1
-            print(f"Full Ripe: {COUNT}")
+            print(f"Count: {COUNT}")
             time.sleep(10)     
             
         if cv2.waitKey(25) & 0xFF == ord('q'):
