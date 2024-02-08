@@ -78,7 +78,7 @@ def process_frame(frame, model):
             #check the center of the box in the between center of the frame size
             center = find_center(boxes)
             if int(frame.shape[1]//2) >= center <= int(frame.shape[1]//2) - 10:
-                return ripness, center
+                return frame, ripness, center
             
     except Exception as e:
         print(e)

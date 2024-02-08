@@ -53,6 +53,8 @@ if cap.isOpened():
             
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
+    except Exception as e:
+        print(e)
     finally:
         cap.release()
         cv2.destroyAllWindows()
