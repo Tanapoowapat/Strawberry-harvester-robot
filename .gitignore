@@ -158,7 +158,7 @@ dmypy.json
 cython_debug/
 
 #ignore Folder
-#test_image/
+test_image/
 
 
 # PyCharm
