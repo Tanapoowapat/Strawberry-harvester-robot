@@ -34,7 +34,7 @@ def main():
         if ripness == "Full Ripe" and box is not None:
             COUNT += 1
             print(f"Count: {COUNT}")
-            
+            time.sleep(10)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
         new_frame_time = time.time()
