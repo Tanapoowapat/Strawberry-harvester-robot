@@ -31,10 +31,8 @@ def show_camera(model):
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
-                        x1, x2 = boxes[0], boxes[2]
-                        center = find_center(x1, x2)
+                        center = find_center(boxes)
                         print(f'Center: {center}, Ripness: {ripness}')
-
 
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF

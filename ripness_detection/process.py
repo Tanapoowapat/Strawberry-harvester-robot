@@ -3,6 +3,11 @@ import numpy as np
 from ripness_detection import calculate_percent_in_mask
 
 def extract_contour_and_mask(c):
+    '''Extract contour and mask from the result
+        Args: c: result from model
+        Returns: b_mask: binary mask
+    '''
+    
     contour = c.masks.xy.pop()
     contour = contour.astype(np.int32)
     contour = contour.reshape(-1, 1, 2)
@@ -28,7 +33,10 @@ def ripness_level(red_percent, green_percent):
         return 'Unripe'
 
 def find_center(box):
-    return (int(box[0]) + int(box[1]))//2
+    '''Find the Horizontal Center of the box
+       Args: box: tuple of (x1, y1, x2, y2)
+    '''
+    return (int(box[0]) + int(box[2]))//2
 
 def find_strawberry(result):
     red_color_percent = 0
