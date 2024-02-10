@@ -3,12 +3,9 @@ import numpy as np
 from ultralytics import YOLO
 from ripness_detection import calculate_percent_in_mask
 
-
-
 def load_model(model_path):
     # Load YOLOV8 ONNX
     return YOLO(model_path, task='segment')
-
 
 def load_webcam(video_path):
     # Load video
@@ -42,48 +39,23 @@ def ripness_level(red_percent, green_percent):
 def find_center(box):
     return (int(box[0]) + int(box[1]))//2
 
-def find_strawberry(frame, model):
-    results = model(frame, conf=0.8)
+def find_strawberry(result):
     red_color_percent = 0
     green_color_percent = 0
-
-    if len(results) == 0:
-        ripness = None
-        boxes = None
-        return ripness, boxes
+    
+    if result.mask is None:
+        return None, None
     else:
-        for result in results:
-            img = result.orig_img
-            for ci, c in enumerate(result):
-                label = c.names[c.boxes.cls.tolist().pop()]
-                _, mask3ch = extract_contour_and_mask(c)
-                
-                isolated = cv2.bitwise_and(mask3ch, img)
+        img = result.orig_img
+        for ci, c in enumerate(result):
+            _, mask3ch = extract_contour_and_mask(c)
+            isolated = cv2.bitwise_and(mask3ch, img)
 
-                x1, y1, x2, y2 = c.boxes.xyxy.cpu().numpy().squeeze().astype(np.int32)
-                iso_crop = isolated[y1:y2, x1:x2]
-                mask_crop = mask3ch[y1:y2, x1:x2]
+            x1, y1, x2, y2 = c.boxes.xyxy.cpu().numpy().squeeze().astype(np.int32)
+            iso_crop = isolated[y1:y2, x1:x2]
+            mask_crop = mask3ch[y1:y2, x1:x2]
 
-                red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
-                ripness = ripness_level(red_color_percent, green_color_percent)
-                boxes = (x1, x2)
-                return ripness, boxes
-
-
-
-def process_frame(frame, model):
-    try:
-        ripness, boxes = find_strawberry(frame, model)
-        if ripness is not None and boxes is not None:
-            #check the center of the box in the between center of the frame size
-            center = find_center(boxes)
-            if int(frame.shape[1]//2) >= center <= int(frame.shape[1]//2) - 10:
-                return frame, ripness, center
-            
-    except Exception as e:
-        print(e)
-        pass
-
-    return frame, None, None
-
- 
+            red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
+            ripness = ripness_level(red_color_percent, green_color_percent)
+            boxes = (x1, y1, x2, y2)
+            return ripness, boxes
