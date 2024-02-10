@@ -17,15 +17,12 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
 def show_camera(model):
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
-    
     prev_frame_time = 0
     new_frame_time = 0
     if video_capture.isOpened():
         try:
             while True:
                 _, frame = video_capture.read()
-                frame_h , frame_w, _ = frame.shape
-                print(f'Frame Height: {frame_h} | Frame Width: {frame_w}')
                 results = model(frame, stream=True, conf=0.9, half=True, device=0)  
                 #CALCULATE FPS
                 new_frame_time = time.time()
@@ -34,7 +31,7 @@ def show_camera(model):
                 fps = int(fps)
                 print(f'FPS :  {str(fps)}')
                 #Draw Rectangle x1 300 x2 340 y1 0 y2 480 
-                cv2.rectangle(frame, (300,0), (340,480), (0, 255, 0), 2)
+                cv2.rectangle(frame, (230, 49), (340, 431), (0, 255, 0), 2)
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
