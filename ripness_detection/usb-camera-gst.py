@@ -1,8 +1,5 @@
-import sys
 import time
 from process import find_strawberry
-
-print('Load Model...')
 import cv2
 from ultralytics import YOLO
 
@@ -18,6 +15,7 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
                        ])
 
 def show_camera(model):
+    print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
     
     prev_frame_time = 0
@@ -26,7 +24,6 @@ def show_camera(model):
         try:
             while True:
                 _, frame = video_capture.read()
-                
                 
                 #CALCULATE FPS
                 new_frame_time = time.time()
@@ -38,12 +35,10 @@ def show_camera(model):
                 results = model(frame, stream=True, conf=0.9, half=True, device=0)
                 for result in results:
                     ripness, boxes = find_strawberry(result)
-                    print(ripness, boxes)
                     if boxes is not None and ripness is not None:
-                        for box in boxes:
-                            cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
-                            cv2.putText(frame, ripness, (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
-                cv2.imshow(window_title, frame)
+                        x1, x2 = boxes[0], boxes[2]
+                        print(f'Ripness: {ripness} | x1 : {x1} | x2 : {x2}')
+
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
                 if keyCode == 27 or keyCode == ord('q'):
@@ -58,5 +53,6 @@ def show_camera(model):
 
 
 if __name__ == "__main__":
+    print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model)
