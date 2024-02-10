@@ -1,4 +1,4 @@
-from process import find_strawberry
+from process import find_strawberry, find_center
 import cv2
 from ultralytics import YOLO
 from utils.utils import fps
@@ -32,8 +32,10 @@ def show_camera(model):
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
                         x1, x2 = boxes[0], boxes[2]
-                        print(f'Ripness: {ripness} | x1 : {x1} | x2 : {x2}')
-                
+                        center = find_center(x1, x2)
+                        print(f'Center: {center}, Ripness: {ripness}')
+
+
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
