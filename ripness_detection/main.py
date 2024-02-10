@@ -17,6 +17,7 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
 def show_camera(model):
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    
     prev_frame_time = 0
     new_frame_time = 0
     if video_capture.isOpened():
