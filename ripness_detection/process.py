@@ -42,8 +42,8 @@ def find_center(box):
 def find_strawberry(result):
     red_color_percent = 0
     green_color_percent = 0
-    
-    if result.mask is None:
+
+    if result.masks is None:
         return None, None
     else:
         img = result.orig_img
