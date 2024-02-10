@@ -33,15 +33,16 @@ def show_camera(model):
                 prev_frame_time = new_frame_time
                 fps = int(fps)
                 print(f'FPS :  {str(fps)}')
-
-                
-                
+                #Draw Rectangle x1 300 x2 340 y1 0 y2 480 
+                cv2.rectangle(frame, (300,0), (340,480), (0, 255, 0), 2)
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
                         x1, x2 = boxes[0], boxes[2]
                         print(f'Ripness: {ripness} | x1 : {x1} | x2 : {x2}')
 
+
+                cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
                 if keyCode == 27 or keyCode == ord('q'):
