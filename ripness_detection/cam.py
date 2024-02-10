@@ -1,6 +1,6 @@
 import time
 import cv2
-
+from ultralytics import YOLO
 
 window_title = "USB Camera"
 
@@ -13,8 +13,12 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
                        ])
 
 def show_camera():
+    
+    model = YOLO('model/detection/best.pt', task='detect')
+    _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # run once
+
     print('Start Reading Camera...')
-    video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    video_capture = cv2.VideoCapture(0)
     #Init Mask
     mask = cv2.imread('mask.png')
     #Reize Mask to H 480 W 640
@@ -34,8 +38,11 @@ def show_camera():
                 prev_frame_time = new_frame_time
                 fps = int(fps)
                 print(f'FPS :  {str(fps)}')
-                #Draw Rectangle x1 230 x2 340 y1 49 y2 431 
-                cv2.rectangle(frame, (230,49), (340,431), (0, 255, 0), 2)
+                #Run Model
+                results = model(frame, stream=True, conf=0.9, half=True, device=0)
+                for result in results:
+                    frame = result.plot()
+
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'

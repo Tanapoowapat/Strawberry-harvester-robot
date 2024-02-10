@@ -19,6 +19,7 @@ def show_camera(model):
     mask = cv2.imread('mask.png')
     prev_frame_time = 0
     new_frame_time = 0
+    
     if video_capture.isOpened():
         try:
             while True:
@@ -51,4 +52,5 @@ def show_camera(model):
 if __name__ == "__main__":
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
+    model.fuse()
     show_camera(model)
