@@ -39,9 +39,10 @@ def show_camera(model):
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     print(ripness, boxes)
-                    for box in boxes:
-                        cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
-                        cv2.putText(frame, ripness, (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+                    if boxes is not None and ripness is not None:
+                        for box in boxes:
+                            cv2.rectangle(frame, (box[0], box[1]), (box[2], box[3]), (0, 255, 0), 2)
+                            cv2.putText(frame, ripness, (box[0], box[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
