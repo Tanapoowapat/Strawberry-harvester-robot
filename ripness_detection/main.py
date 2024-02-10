@@ -1,8 +1,7 @@
-import time
 from process import find_strawberry
 import cv2
 from ultralytics import YOLO
-
+from utils.utils import fps
 
 window_title = "USB Camera"
 
@@ -28,20 +27,13 @@ def show_camera(model):
                 frame = cv2.bitwise_and(frame, mask)
                 results = model(frame, stream=True, conf=0.9, half=True, device=0)  
                 #CALCULATE FPS
-                new_frame_time = time.time()
-                fps = 1/(new_frame_time-prev_frame_time)
-                prev_frame_time = new_frame_time
-                fps = int(fps)
-                print(f'FPS :  {str(fps)}')
-                #Draw Rectangle x1 300 x2 340 y1 0 y2 480 
-                cv2.rectangle(frame, (230, 49), (340, 431), (0, 255, 0), 2)
+                prev_frame_time = fps(new_frame_time, prev_frame_time)
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
                         x1, x2 = boxes[0], boxes[2]
                         print(f'Ripness: {ripness} | x1 : {x1} | x2 : {x2}')
-
-
+                
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'

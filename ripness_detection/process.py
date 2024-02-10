@@ -1,15 +1,6 @@
 import cv2
 import numpy as np
-from ultralytics import YOLO
 from ripness_detection import calculate_percent_in_mask
-
-def load_model(model_path):
-    # Load YOLOV8 ONNX
-    return YOLO(model_path, task='segment')
-
-def load_webcam(video_path):
-    # Load video
-    return cv2.VideoCapture(video_path)
 
 def extract_contour_and_mask(c):
     contour = c.masks.xy.pop()
