@@ -24,15 +24,18 @@ def show_camera(model):
         try:
             while True:
                 _, frame = video_capture.read()
-                
+                frame_h , frame_w, _ = frame.shape
+                print(f'Frame Height: {frame_h} | Frame Width: {frame_w}')
+                results = model(frame, stream=True, conf=0.9, half=True, device=0)  
                 #CALCULATE FPS
                 new_frame_time = time.time()
                 fps = 1/(new_frame_time-prev_frame_time)
                 prev_frame_time = new_frame_time
                 fps = int(fps)
                 print(f'FPS :  {str(fps)}')
+
                 
-                results = model(frame, stream=True, conf=0.9, half=True, device=0)
+                
                 for result in results:
                     ripness, boxes = find_strawberry(result)
                     if boxes is not None and ripness is not None:
