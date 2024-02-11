@@ -26,7 +26,6 @@ def show_camera():
     #mask = cv2.resize(mask, (640, 480))
     prev_frame_time = 0
     new_frame_time = 0
-    tracker = Tracker()
     if video_capture.isOpened():
         try:
             while True:
@@ -35,12 +34,7 @@ def show_camera():
                 #frame = cv2.bitwise_and(frame, mask)
 
                 #Run Model
-                results = model(frame, conf=0.7, half=True, device=0)
-                if len(result) > 0:
-                    #print(result)
-                    for ci, c in enumerate(result):
-                        print(f'CI : {ci}\nC : {c}')
-                                    
+                results = model(frame, conf=0.7, half=True, device=0)       
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
