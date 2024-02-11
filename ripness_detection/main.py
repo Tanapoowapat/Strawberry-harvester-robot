@@ -36,7 +36,7 @@ def show_camera(model):
                     if boxes is not None and ripness is not None:
                         center = find_center(boxes)
                         print(f'Center: {center}, Ripness: {ripness}')
-
+                    frame = result.plot()
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
