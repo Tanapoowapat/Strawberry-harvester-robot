@@ -38,7 +38,7 @@ def find_horizon_center(box):
     '''
     return (int(box[0]) + int(box[2]))//2
 
-def find_strawberry(result, strawberry):
+def find_strawberry(result):
     red_color_percent = 0
     green_color_percent = 0
 
@@ -63,6 +63,6 @@ def find_strawberry(result, strawberry):
             #Draw the ripeness level on box
             cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-def process_frame(frame, result, strawberry):
-    find_strawberry(result, strawberry)
+def process_frame(frame, result):
+    find_strawberry(result)
     return frame
