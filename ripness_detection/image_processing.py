@@ -38,6 +38,7 @@ def show_camera(model):
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
                 if keyCode == 27 or keyCode == ord('q'):
+                    
                     break
         except Exception as e:
             print(e)
