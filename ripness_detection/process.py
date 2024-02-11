@@ -59,7 +59,7 @@ def process_frame(result):
                 center_x, center_y = calculate_centroid(boxes)
                 #Draw the circle
                 cv2.circle(img, (center_x, center_y-100), 5, (0, 255, 0), -1)
-                print(f'Center X : {center_x} Center Y : {center_y}')
+                print(f'Center X : {center_x*0.0264583333} Center Y : {center_y*0.0264583333}')
                 #Draw the text
                 cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
