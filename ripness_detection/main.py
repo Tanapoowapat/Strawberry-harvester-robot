@@ -47,7 +47,6 @@ def show_camera(model):
     else:
         print("Error: Unable to open camera")
 
-
 if __name__ == "__main__":
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
