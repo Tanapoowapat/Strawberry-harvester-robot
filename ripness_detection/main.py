@@ -14,6 +14,8 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
                        ])
 
 def show_camera(model):
+    
+    _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
@@ -52,5 +54,4 @@ def show_camera(model):
 if __name__ == "__main__":
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
-    model.fuse()
     show_camera(model)
