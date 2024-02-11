@@ -58,11 +58,9 @@ def find_strawberry(result):
             ripness = ripness_level(red_color_percent, green_color_percent)
             boxes = (x1, y1, x2, y2)
             center_x, center_y = calculate_centroid(boxes)
-            #Draw the circle
-            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), -1)
-            #Draw the ripeness level on box
-            cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            return center_x, center_y, ripness
 
 def process_frame(frame, result):
-    find_strawberry(result)
+    result = find_strawberry(result)
+    print(result)
     return frame
