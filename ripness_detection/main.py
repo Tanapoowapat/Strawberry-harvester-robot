@@ -29,7 +29,7 @@ def show_camera(model):
                 _, frame = video_capture.read()
                 # Bitwise-AND mask into frame.
                 frame = cv2.bitwise_and(frame, mask)
-                results = model(frame, stream=True, conf=0.7, half=True, device=0)  
+                results = model(frame, stream=True, conf=0.5, half=True, device=0)  
                 #CALCULATE FPS
                 prev_frame_time = fps(new_frame_time, prev_frame_time)
                 for result in results:
