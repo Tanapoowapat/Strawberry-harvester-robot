@@ -46,7 +46,7 @@ def find_strawberry(result):
         return None, None
     else:
         img = result.orig_img
-        for ci, c in enumerate(result):
+        for _, c in enumerate(result):
             _, mask3ch = extract_contour_and_mask(c)
             isolated = cv2.bitwise_and(mask3ch, img)
 
@@ -58,9 +58,9 @@ def find_strawberry(result):
             ripness = ripness_level(red_color_percent, green_color_percent)
             boxes = (x1, y1, x2, y2)
             center_x, center_y = calculate_centroid(boxes)
-            return center_x, center_y, ripness
+            #Draw the circle
+            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), -1)
 
 def process_frame(frame, result):
-    result = find_strawberry(result)
-    print(result)
+    find_strawberry(result)
     return frame
