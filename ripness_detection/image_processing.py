@@ -17,8 +17,8 @@ def show_camera(model):
     
     _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     print('Start Reading Camera...')
-    #video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
-    video_capture = cv2.VideoCapture(1)
+    video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    #video_capture = cv2.VideoCapture(1)
     mask = cv2.imread('mask.png')
     prev_frame_time = 0
     new_frame_time = 0
