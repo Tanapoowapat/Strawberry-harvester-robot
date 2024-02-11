@@ -18,7 +18,7 @@ def show_camera(model):
     _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
-    mask = cv2.imread('mask.png')
+    #mask = cv2.imread('mask.png')
     prev_frame_time = 0
     new_frame_time = 0
     
@@ -27,7 +27,7 @@ def show_camera(model):
             while True:
                 _, frame = video_capture.read()
                 # Bitwise-AND mask into frame.
-                frame = cv2.bitwise_and(frame, mask)
+                #frame = cv2.bitwise_and(frame, mask)
                 results = model(frame, stream=True, conf=0.9, half=True, device=0)  
                 #CALCULATE FPS
                 prev_frame_time = fps(new_frame_time, prev_frame_time)
