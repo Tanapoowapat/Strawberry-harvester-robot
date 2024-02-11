@@ -5,7 +5,7 @@ from image_processing import start_process
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     client.subscribe("rasp/v_s")
-    client.subscribe("rees/resets")
+    #client.subscribe("rees/resets")
 
 def on_message(client, userdata, msg):
 
