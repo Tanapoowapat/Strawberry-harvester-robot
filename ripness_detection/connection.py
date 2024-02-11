@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
-import time
+from image_processing import start_process
+
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -12,11 +13,9 @@ def on_message(client, userdata, msg):
 
     # print(msg.topic+" = "+str(msg.payload))
     print(msg.topic+" = "+decoded_data)
-    # print(type(msg.payload))
-
-    # if decoded_data == '10' or decoded_data.isdigit(): 
-    #print(f'Server sand : {decoded_data}')
-    print(f'Server staby')
+    
+    if decoded_data == '1':
+        start_process()
 
 client = mqtt.Client()
 client.on_connect = on_connect
