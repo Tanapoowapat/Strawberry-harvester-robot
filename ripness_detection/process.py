@@ -38,7 +38,7 @@ def find_horizon_center(box):
     '''
     return (int(box[0]) + int(box[2]))//2
 
-def find_strawberry(result):
+def find_strawberry(result, strawberry):
     red_color_percent = 0
     green_color_percent = 0
 
@@ -46,8 +46,8 @@ def find_strawberry(result):
         return None, None
     else:
         img = result.orig_img
-        for _, c in enumerate(result):
-            _, mask3ch = extract_contour_and_mask(c)
+        for ci, c in enumerate(result):
+            mask3ch = extract_contour_and_mask(c)
             isolated = cv2.bitwise_and(mask3ch, img)
 
             x1, y1, x2, y2 = c.boxes.xyxy.cpu().numpy().squeeze().astype(np.int32)
@@ -63,6 +63,6 @@ def find_strawberry(result):
             #Draw the ripeness level on box
             cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-def process_frame(frame, result):
-    find_strawberry(result)
+def process_frame(frame, result, strawberry):
+    find_strawberry(result, strawberry)
     return frame

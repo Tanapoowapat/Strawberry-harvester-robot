@@ -22,7 +22,7 @@ def show_camera(model):
     mask = cv2.imread('mask.png')
     prev_frame_time = 0
     new_frame_time = 0
-    
+    strawberry = {}
     if video_capture.isOpened():
         try:
             while True:
@@ -33,7 +33,7 @@ def show_camera(model):
                 #CALCULATE FPS
                 prev_frame_time = fps(new_frame_time, prev_frame_time)
                 for result in results:
-                    process_frame(frame ,result)
+                    process_frame(frame ,result, strawberry)
 
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
