@@ -18,7 +18,7 @@ def on_message(client, userdata, msg):
     #print(f'Server sand : {decoded_data}')
     print(f'Server staby')
 
-client = mqtt.Client(protocol=mqtt.MQTTv311)
+client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
