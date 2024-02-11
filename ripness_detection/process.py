@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy as np
 from ripness_detection import calculate_percent_in_mask
@@ -38,15 +39,11 @@ def find_horizon_center(box):
     '''
     return (int(box[0]) + int(box[2]))//2
 
-def find_strawberry(result):
+def process_frame(result):
     red_color_percent = 0
     green_color_percent = 0
-
-    if result.masks is None:
-        return None, None
-    else:
-        img = result.orig_img
-        for _, c in enumerate(result):
+    img = result.orig_img
+    for _, c in enumerate(result):
             _, mask3ch = extract_contour_and_mask(c)
             isolated = cv2.bitwise_and(mask3ch, img)
 
@@ -57,14 +54,12 @@ def find_strawberry(result):
             red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
             ripness = ripness_level(red_color_percent, green_color_percent)
             boxes = (x1, y1, x2, y2)
-            center_x, center_y = calculate_centroid(boxes)
-            #Draw the circle
-            cv2.circle(img, (center_x, center_y-100), 5, (0, 255, 0), -1)
 
-            #Draw the text
-            cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            if ripness == "Full Ripe":
+                center_x, center_y = calculate_centroid(boxes)
+                #Draw the circle
+                cv2.circle(img, (center_x, center_y-100), 5, (0, 255, 0), -1)
 
+                #Draw the text
+                cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-def process_frame(frame, result):
-    find_strawberry(result)
-    return frame
