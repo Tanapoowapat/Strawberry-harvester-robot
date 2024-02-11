@@ -2,6 +2,7 @@ from process import process_frame
 import cv2
 from ultralytics import YOLO
 from utils.utils import fps
+from main import on_message
 
 window_title = "USB Camera"
 

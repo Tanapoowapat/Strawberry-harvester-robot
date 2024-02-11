@@ -5,6 +5,7 @@ from image_processing import start_process
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     client.subscribe("rasp/v_s")
+    client.subscribe("rees/resets")
 
 def on_message(client, userdata, msg):
 
@@ -14,7 +15,7 @@ def on_message(client, userdata, msg):
     # print(msg.topic+" = "+str(msg.payload))
     print(msg.topic+" = "+decoded_data)
     
-    if decoded_data == '1':
+    if decoded_data == '1' or decoded_data == 'q':
         start_process()
 
 client = mqtt.Client()
