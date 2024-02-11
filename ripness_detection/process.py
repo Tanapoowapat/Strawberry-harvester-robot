@@ -59,7 +59,7 @@ def find_strawberry(result):
             boxes = (x1, y1, x2, y2)
             center_x, center_y = calculate_centroid(boxes)
             #Draw the circle
-            cv2.circle(img, (center_x, center_y+100), 5, (0, 255, 0), -1)
+            cv2.circle(img, (center_x, center_y-100), 5, (0, 255, 0), -1)
 
             #Draw the text
             cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
