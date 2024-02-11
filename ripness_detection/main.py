@@ -1,4 +1,4 @@
-from process import find_strawberry, find_center
+from process import find_strawberry, process_frame
 import cv2
 from ultralytics import YOLO
 from utils.utils import fps
@@ -18,6 +18,7 @@ def show_camera(model):
     _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    #video_capture = cv2.VideoCapture(1)
     mask = cv2.imread('mask.png')
     prev_frame_time = 0
     new_frame_time = 0
@@ -28,14 +29,12 @@ def show_camera(model):
                 _, frame = video_capture.read()
                 # Bitwise-AND mask into frame.
                 frame = cv2.bitwise_and(frame, mask)
-                results = model(frame, stream=True, conf=0.9, half=True, device=0)  
+                results = model(frame, stream=True, conf=0.7, half=True, device=0)  
                 #CALCULATE FPS
                 prev_frame_time = fps(new_frame_time, prev_frame_time)
                 for result in results:
-                    ripness, boxes = find_strawberry(result)
-                    if boxes is not None and ripness is not None:
-                        center = find_center(boxes)
-                        print(f'Center: {center}, Ripness: {ripness}')
+                    process_frame(frame ,result)
+
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'

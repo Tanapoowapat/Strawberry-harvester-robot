@@ -1,6 +1,8 @@
-import time
 import cv2
+import time
 from ultralytics import YOLO
+from utils.utils import calculate_centroid
+
 
 window_title = "USB Camera"
 
@@ -14,42 +16,36 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
 
 def show_camera():
     
-    model = YOLO('model/detection/best.pt', task='detect')
-    _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # run once
+    model = YOLO('model/segment/best.pt', task='segment')
 
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(0)
     #Init Mask
-    mask = cv2.imread('mask.png')
+    #mask = cv2.imread('mask.png')
     #Reize Mask to H 480 W 640
-    mask = cv2.resize(mask, (640, 480))
+    #mask = cv2.resize(mask, (640, 480))
     prev_frame_time = 0
     new_frame_time = 0
+    tracker = Tracker()
     if video_capture.isOpened():
         try:
             while True:
                 _, frame = video_capture.read()
                 #Bitwise And Mask
-                frame = cv2.bitwise_and(frame, mask)
+                #frame = cv2.bitwise_and(frame, mask)
 
-                #CALCULATE FPS
-                new_frame_time = time.time()
-                fps = 1/(new_frame_time-prev_frame_time)
-                prev_frame_time = new_frame_time
-                fps = int(fps)
-                print(f'FPS :  {str(fps)}')
                 #Run Model
-                results = model(frame, stream=True, conf=0.9, half=True, device=0)
-                for result in results:
-                    frame = result.plot()
-
+                results = model(frame, conf=0.7, half=True, device=0)
+                if len(result) > 0:
+                    #print(result)
+                    for ci, c in enumerate(result):
+                        print(f'CI : {ci}\nC : {c}')
+                                    
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
                 if keyCode == 27 or keyCode == ord('q'):
                     break
-        except Exception as e:
-            print(e)
         finally:
             video_capture.release()
             cv2.destroyAllWindows()

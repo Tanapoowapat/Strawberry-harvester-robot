@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from ripness_detection import calculate_percent_in_mask
-
+from utils.utils import calculate_centroid
 def extract_contour_and_mask(c):
     '''Extract contour and mask from the result
         Args: c: result from model
@@ -32,7 +32,7 @@ def ripness_level(red_percent, green_percent):
     elif 30 < red_percent >= 10 or green_percent < 80:
         return 'Unripe'
 
-def find_center(box):
+def find_horizon_center(box):
     '''Find the Horizontal Center of the box
        Args: box: tuple of (x1, y1, x2, y2)
     '''
@@ -46,7 +46,7 @@ def find_strawberry(result):
         return None, None
     else:
         img = result.orig_img
-        for ci, c in enumerate(result):
+        for _, c in enumerate(result):
             _, mask3ch = extract_contour_and_mask(c)
             isolated = cv2.bitwise_and(mask3ch, img)
 
@@ -57,4 +57,12 @@ def find_strawberry(result):
             red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
             ripness = ripness_level(red_color_percent, green_color_percent)
             boxes = (x1, y1, x2, y2)
-            return ripness, boxes
+            center_x, center_y = calculate_centroid(boxes)
+            #Draw the circle
+            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), -1)
+            #Draw the ripeness level on box
+            cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+def process_frame(frame, result):
+    find_strawberry(result)
+    return frame

@@ -1,0 +1,19 @@
+import numpy as np
+import cv2
+
+# Create a black image
+image = np.zeros((400, 400, 3), dtype=np.uint8)
+
+# Define circle parameters
+center = (100, 100)
+radius = 1
+color = (0, 255, 0)  # Green color in BGR format
+thickness = 2  # Thickness of the circle outline
+
+# Draw the circle on the image
+cv2.circle(image, center, radius, color, thickness)
+
+# Display the image
+cv2.imshow('Circle', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
