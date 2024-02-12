@@ -57,7 +57,6 @@ def find_strawberry(result):
         if ripeness == "Full Ripe":
             center_x, center_y = calculate_centroid(boxes)
             # Draw the circle
-            center_y = 16 + (10-(center_y*0.0264583333))
             cv2.circle(img, (center_x, int(center_y)), 5, (0, 255, 0), 2)
             ripe_strawberries.append(center_y)
 

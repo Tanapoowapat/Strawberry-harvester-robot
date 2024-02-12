@@ -51,6 +51,7 @@ def show_camera(model):
                 py = process_frame(result)
                 if py is not None:
                     for _, pos_y in enumerate(py):
+                            print(pos_y)
                             if pos_y >= 22 or pos_y <= 11:
                                 print("Error: Invalid position")
                                 break
