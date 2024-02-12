@@ -33,7 +33,7 @@ def show_camera(model):
                 #prev_frame_time = fps(new_frame_time, prev_frame_time)
                 
                 for result in results:
-                    process_frame(result)
+                    py = process_frame(result)
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'

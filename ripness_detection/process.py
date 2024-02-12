@@ -64,4 +64,4 @@ def find_strawberry(result):
             
 def process_frame(result):
     py = find_strawberry(result)
-    print(py)
+    return py
