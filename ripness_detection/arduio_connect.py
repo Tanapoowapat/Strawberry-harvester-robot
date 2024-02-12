@@ -2,7 +2,7 @@ import serial
 import time
 
 def send_data_to_arduino(py, arduino):
-    print('send to arduino...')
+    print(f'{py}')
     data = f"{py}\n"
     arduino.write(data.encode())
     time.sleep(0.1)
