@@ -5,8 +5,12 @@ from ripness_detection import calculate_percent_in_mask
 from utils.utils import calculate_centroid
 import arduio_connect as ac
 import time
+import serial
+import time
 
-
+arduino_port = '/dev/ttyACM0'
+baud_rate = 9600
+arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
 
 def extract_contour_and_mask(c):
     '''Extract contour and mask from the result
@@ -44,6 +48,12 @@ def find_horizon_center(box):
     '''
     return (int(box[0]) + int(box[2]))//2
 
+def send_data_to_arduino(py):
+    data = f"{py}\n"
+    arduino.write(data.encode())
+    time.sleep(0.1)
+    return True
+
 def process_frame(result):
     red_color_percent = 0
     green_color_percent = 0
@@ -69,4 +79,13 @@ def process_frame(result):
                 cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 #Send data to arduino
                 time.sleep(0.5)
-                ac.send_data(16 + (10-(center_y*0.0264583333)))
+                py = 16 + (10-(center_y*0.0264583333))
+                if py > 21  or py < 11:
+                    print('Invalid data')
+                    break
+                status = send_data_to_arduino(py)
+                while status:
+                    received_data = arduino.readline().decode('utf8').strip()
+                    print(received_data)
+                    if received_data == "succeed":
+                            break
