@@ -18,56 +18,56 @@ arduino_port = '/dev/ttyACM0'
 baud_rate = 9600
 arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
 
-def send_data_to_arduino(py, cap):
-    cap.release()
-    cv2.destroyAllWindows()
-    data = f"{py}\n"
+def send_data_to_arduino(pos_y, cap):
+    cap.release()  # Release the camera
+    cv2.destroyAllWindows()  # Close any OpenCV windows
+    data = f"{pos_y}\n"
     arduino.write(data.encode())
-    time.sleep(0.1)
-    return True
+    time.sleep(0.1)  # Ensure Arduino has time to process data
+    received_data = ""
+    while received_data != "succeed":
+        received_data = arduino.readline().decode('utf8').strip()
+        if received_data:
+            print("Received data from Arduino:", received_data)
+    cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)  # Reopen the camera
+    return received_data, cap
 
 def show_camera(model):
-    
     _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
-    #video_capture = cv2.VideoCapture(1)
     mask = cv2.imread('mask.png')
-    prev_frame_time = 0
-    new_frame_time = 0
     if video_capture.isOpened():
-            while True:
-                _, frame = video_capture.read()
-                # Bitwise-AND mask into frame
-                frame = cv2.bitwise_and(frame, mask)
-                results = model(frame, stream=True, conf=0.5, half=True, device=0)  
-                #CALCULATE FPS
-                #prev_frame_time = fps(new_frame_time, prev_frame_time)
-                
-                for result in results:
-                    py = process_frame(result)
-                    if py:
-                        for _, pos_y in py:
-                            if pos_y > 0:
-                                status = send_data_to_arduino(pos_y, video_capture)
-                                while status:
-                                    received_data = arduino.readline().decode('utf8').strip()
-                                    if received_data == "succeed":
-                                        break
+        while True:
+            ret, frame = video_capture.read()
+            if not ret:
+                print("Error: Unable to read frame from camera")
+                break
 
-                if not video_capture.isOpened():
-                    video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+            frame = cv2.bitwise_and(frame, mask)
+            results = model(frame, stream=True, conf=0.5, half=True, device=0)  
 
-                cv2.imshow(window_title, frame)
-                keyCode = cv2.waitKey(10) & 0xFF
-                # Stop the program on the ESC key or 'q'
-                if keyCode == 27 or keyCode == ord('q'):
-                    video_capture.release()
-                    cv2.destroyAllWindows()
-                    break
-        
+            for result in results:
+                py = process_frame(result)
+                if py is not None:
+                    for pos_y in py:
+                        if pos_y > 0:
+                            status, video_capture = send_data_to_arduino(pos_y, video_capture)
+                            if status == "succeed":
+                                print("Data sent successfully")
+                            else:
+                                print("Error sending data to Arduino")
+                                break
+
+            cv2.imshow(window_title, frame)
+            keyCode = cv2.waitKey(10) & 0xFF
+            if keyCode == 27 or keyCode == ord('q'):
+                break
     else:
         print("Error: Unable to open camera")
+
+    video_capture.release()
+    cv2.destroyAllWindows()
 
 def start_process():
     print('Load Model...')
