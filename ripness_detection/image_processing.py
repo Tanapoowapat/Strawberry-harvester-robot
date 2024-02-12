@@ -2,7 +2,8 @@ from process import process_frame
 import cv2
 from ultralytics import YOLO
 from utils.utils import fps
-
+import serial
+import time
 window_title = "USB Camera"
 
 # ASSIGN CAMERA ADRESS to DEVICE HERE!
@@ -12,6 +13,17 @@ pipeline = " ! ".join(["v4l2src device=/dev/video0",
                        "video/x-raw, format=(string)BGR",
                        "appsink"
                        ])
+
+arduino_port = '/dev/ttyACM0'
+baud_rate = 9600
+arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
+
+def send_data_to_arduino(py, cap):
+    cap.release()
+    data = f"{py}\n"
+    arduino.write(data.encode())
+    time.sleep(0.1)
+    return True
 
 def show_camera(model):
     
@@ -34,6 +46,9 @@ def show_camera(model):
                 
                 for result in results:
                     py = process_frame(result)
+                    if py:
+                        print(py)
+                        
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
@@ -43,6 +58,7 @@ def show_camera(model):
                     break
         except Exception as e:
             print(e)
+        
     else:
         print("Error: Unable to open camera")
 
