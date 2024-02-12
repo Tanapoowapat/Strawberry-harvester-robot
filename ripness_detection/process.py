@@ -68,5 +68,5 @@ def process_frame(result):
                 #Draw the text
                 cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 #Send data to arduino
-                print(ac.send_data_to_arduino(center_y)
+                print(ac.send_data(center_y)
 )
