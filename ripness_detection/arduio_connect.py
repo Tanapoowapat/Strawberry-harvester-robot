@@ -8,7 +8,7 @@ def send_data_to_arduino(py, arduino):
     time.sleep(0.1)
 
 def send_data(py):
-    if py > 21 or py < 11:
+    if py > 21  or py < 11:
         print('Invalid data')
     else:
         arduino_port = '/dev/ttyACM0'
