@@ -36,7 +36,6 @@ def show_camera(model):
     prev_frame_time = 0
     new_frame_time = 0
     if video_capture.isOpened():
-        try:
             while True:
                 _, frame = video_capture.read()
                 # Bitwise-AND mask into frame
@@ -55,7 +54,7 @@ def show_camera(model):
                                     received_data = arduino.readline().decode('utf8').strip()
                                     if received_data == "succeed":
                                         break
-                                    
+
                 if not video_capture.isOpened():
                     video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
 
@@ -66,8 +65,6 @@ def show_camera(model):
                     video_capture.release()
                     cv2.destroyAllWindows()
                     break
-        except Exception as e:
-            print(e)
         
     else:
         print("Error: Unable to open camera")
