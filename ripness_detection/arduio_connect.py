@@ -2,7 +2,8 @@ import serial
 import time
 
 def send_data_to_arduino(py, arduino):
-    print(f'{py}')
+    py = int(py)
+    print(f'{py} sent to arduino...')
     data = f"{py}\n"
     arduino.write(data.encode())
     time.sleep(0.1)
@@ -17,7 +18,7 @@ def send_data(py):
         
         send_data_to_arduino(py, arduino)
         while True:
-            print('Receiving data from arduino...')
             received_data = arduino.readline().decode('utf8').strip()
+            print(received_data)
             if received_data == "succeed":
                 break
