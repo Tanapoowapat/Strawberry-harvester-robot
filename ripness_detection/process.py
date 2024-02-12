@@ -3,6 +3,11 @@ import cv2
 import numpy as np
 from ripness_detection import calculate_percent_in_mask
 from utils.utils import calculate_centroid
+import arduio_connect as ac
+import time
+
+
+
 def extract_contour_and_mask(c):
     '''Extract contour and mask from the result
         Args: c: result from model
@@ -62,4 +67,6 @@ def process_frame(result):
                 print(f'Center X : {center_x*0.0264583333} Center Y : {center_y*0.0264583333}')
                 #Draw the text
                 cv2.putText(img, ripness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+                #Send data to arduino
+                print(ac.send_data_to_arduino(center_y)
+)
