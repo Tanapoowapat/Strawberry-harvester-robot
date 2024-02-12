@@ -30,7 +30,7 @@ def show_camera(model):
                 frame = cv2.bitwise_and(frame, mask)
                 results = model(frame, stream=True, conf=0.5, half=True, device=0)  
                 #CALCULATE FPS
-                prev_frame_time = fps(new_frame_time, prev_frame_time)
+                #prev_frame_time = fps(new_frame_time, prev_frame_time)
                 
                 for result in results:
                     process_frame(result)
@@ -38,13 +38,11 @@ def show_camera(model):
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
                 if keyCode == 27 or keyCode == ord('q'):
-                    
+                    video_capture.release()
+                    cv2.destroyAllWindows()
                     break
         except Exception as e:
             print(e)
-        finally:
-            video_capture.release()
-            cv2.destroyAllWindows()
     else:
         print("Error: Unable to open camera")
 
@@ -52,5 +50,3 @@ def start_process():
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model)
-
-start_process()

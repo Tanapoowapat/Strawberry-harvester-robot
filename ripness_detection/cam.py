@@ -2,50 +2,60 @@ import cv2
 import time
 from ultralytics import YOLO
 from utils.utils import calculate_centroid
-
-
-window_title = "USB Camera"
-
 # ASSIGN CAMERA ADRESS to DEVICE HERE!
-pipeline = " ! ".join(["v4l2src device=/dev/video0",
-                       "video/x-raw, width=640, height=480, framerate=30/1",
-                       "videoconvert",
-                       "video/x-raw, format=(string)BGR",
-                       "appsink"
-                       ])
+# pipeline = " ! ".join(["v4l2src device=/dev/video0",
+#                        "video/x-raw, width=640, height=480, framerate=30/1",
+#                        "videoconvert",
+#                        "video/x-raw, format=(string)BGR",
+#                        "appsink"
+#                        ])
 
-def show_camera():
-    
-    model = YOLO('model/segment/best.pt', task='segment')
+def close_webcam(cap):
+    # Release the VideoCapture object
+    cap.release()
+    print('Camera released...')
+
+
+def open_webcam(pipeline):
+    # Create a VideoCapture object with Gstreamer pipeline
+    cap = cv2.VideoCapture(pipeline)
+    if not cap.isOpened():
+        print("Error: Unable to open webcam.")
+        return None
+    return cap
+
+
+
+def show_camera(pipeline):
+    global running
+    running = True
+    cap = open_webcam(pipeline)
+    if cap is None:
+        return
 
     print('Start Reading Camera...')
-    video_capture = cv2.VideoCapture(0)
-    #Init Mask
-    #mask = cv2.imread('mask.png')
-    #Reize Mask to H 480 W 640
-    #mask = cv2.resize(mask, (640, 480))
-    prev_frame_time = 0
-    new_frame_time = 0
-    if video_capture.isOpened():
-        try:
-            while True:
-                _, frame = video_capture.read()
-                #Bitwise And Mask
-                #frame = cv2.bitwise_and(frame, mask)
+    
+    while True:
+        if running:
+            ret, frame = cap.read()
+            if not ret:
+                print("Error: Failed to capture frame.")
+                break
+            # Display the captured frame
+            cv2.imshow('Webcam', frame)
+        
 
-                #Run Model
-                results = model(frame, conf=0.7, half=True, device=0)       
-                cv2.imshow(window_title, frame)
-                keyCode = cv2.waitKey(10) & 0xFF
-                # Stop the program on the ESC key or 'q'
-                if keyCode == 27 or keyCode == ord('q'):
-                    break
-        finally:
-            video_capture.release()
+        
+        keyCode = cv2.waitKey(10) & 0xFF
+        if keyCode == 27 or keyCode == ord('q'):
+            close_webcam()
             cv2.destroyAllWindows()
-    else:
-        print("Error: Unable to open camera")
+            break
+        
+    close_webcam(cap)
 
+def start_process():
+    print('Load Model...')
+    show_camera(0)
 
-if __name__ == "__main__":
-    show_camera()
+start_process()
