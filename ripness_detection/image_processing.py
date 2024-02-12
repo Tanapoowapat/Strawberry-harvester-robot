@@ -54,12 +54,12 @@ def show_camera(model):
                             if pos_y >= 22 or pos_y <= 11:
                                 print("Error: Invalid position")
                                 break
-                            status, video_capture = send_data_to_arduino(pos_y, video_capture)
-                            if status == "succeed":
-                                print("Data sent successfully")
-                            else:
-                                print("Error sending data to Arduino")
-                                break
+                            # status, video_capture = send_data_to_arduino(pos_y, video_capture)
+                            # if status == "succeed":
+                            #     print("Data sent successfully")
+                            # else:
+                            #     print("Error sending data to Arduino")
+                            #     break
 
             cv2.imshow(window_title, frame)
             keyCode = cv2.waitKey(10) & 0xFF
