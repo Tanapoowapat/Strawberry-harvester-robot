@@ -40,26 +40,27 @@ def find_horizon_center(box):
     return (int(box[0]) + int(box[2]))//2
 
 def find_strawberry(result):
-    red_color_percent = 0
-    green_color_percent = 0
+    ripe_strawberries = []
     img = result.orig_img
     for _, c in enumerate(result):
-            _, mask3ch = extract_contour_and_mask(c)
-            isolated = cv2.bitwise_and(mask3ch, img)
+        _, mask3ch = extract_contour_and_mask(c)
+        isolated = cv2.bitwise_and(mask3ch, img)
 
-            x1, y1, x2, y2 = c.boxes.xyxy.cpu().numpy().squeeze().astype(np.int32)
-            iso_crop = isolated[y1:y2, x1:x2]
-            mask_crop = mask3ch[y1:y2, x1:x2]
+        x1, y1, x2, y2 = c.boxes.xyxy.cpu().numpy().squeeze().astype(np.int32)
+        iso_crop = isolated[y1:y2, x1:x2]
+        mask_crop = mask3ch[y1:y2, x1:x2]
 
-            red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
-            ripness = ripness_level(red_color_percent, green_color_percent)
-            boxes = (x1, y1, x2, y2)
+        red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
+        ripeness = ripness_level(red_color_percent, green_color_percent)
+        boxes = (x1, y1, x2, y2)
 
-            if ripness == "Full Ripe":
-                center_x, center_y = calculate_centroid(boxes)
-                #Draw the circle
-                cv2.circle(img, (center_x, center_y), 10, (0, 255, 0), 2)
-                return 16 + (10-(center_y*0.0264583333))
+        if ripeness == "Full Ripe":
+            center_x, center_y = calculate_centroid(boxes)
+            # Draw the circle
+            cv2.circle(img, (center_x, center_y), 10, (0, 255, 0), 2)
+            ripe_strawberries.append((16 + (10-(center_y*0.0264583333))))
+
+    return ripe_strawberries
             
 def process_frame(result):
     py = find_strawberry(result)

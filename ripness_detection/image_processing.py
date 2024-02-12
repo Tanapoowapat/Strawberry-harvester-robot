@@ -50,3 +50,5 @@ def start_process():
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model)
+
+start_process()
