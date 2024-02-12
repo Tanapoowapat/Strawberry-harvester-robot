@@ -14,7 +14,6 @@ def send_data(py):
     send_data_to_arduino(py, arduino)
     while True:
         received_data = arduino.readline().decode('utf8').strip()
-        print(received_data)
         if received_data == "succeed":
-            return received_data
-    
+            break
+            
