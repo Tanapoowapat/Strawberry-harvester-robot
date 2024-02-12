@@ -20,6 +20,7 @@ arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
 
 def send_data_to_arduino(py, cap):
     cap.release()
+    cv2.destroyAllWindows()
     data = f"{py}\n"
     arduino.write(data.encode())
     time.sleep(0.1)
@@ -47,8 +48,17 @@ def show_camera(model):
                 for result in results:
                     py = process_frame(result)
                     if py:
-                        print(py)
-                        
+                        for _, pos_y in py:
+                            if pos_y > 0:
+                                status = send_data_to_arduino(pos_y, video_capture)
+                                while status:
+                                    received_data = arduino.readline().decode('utf8').strip()
+                                    if received_data == "succeed":
+                                        break
+                                    
+                if not video_capture.isOpened():
+                    video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+
                 cv2.imshow(window_title, frame)
                 keyCode = cv2.waitKey(10) & 0xFF
                 # Stop the program on the ESC key or 'q'
