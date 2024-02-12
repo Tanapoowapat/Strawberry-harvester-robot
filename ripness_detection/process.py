@@ -64,6 +64,4 @@ def find_strawberry(result):
             
 def process_frame(result):
     py = find_strawberry(result)
-    if py:
-        for _, py in enumerate(py):
-            print('py:', py)
+    print(py)
