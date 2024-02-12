@@ -46,7 +46,6 @@ def show_camera(model):
 
             frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, half=True, device=0)  
-
             for result in results:
                 py = process_frame(result)
                 if py is not None:
