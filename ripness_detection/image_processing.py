@@ -50,8 +50,10 @@ def show_camera(model):
             for result in results:
                 py = process_frame(result)
                 if py is not None:
-                    for pos_y in py:
-                        if pos_y > 0:
+                    for _, pos_y in enumerate(py):
+                            if pos_y >= 22 or pos_y <= 11:
+                                print("Error: Invalid position")
+                                break
                             status, video_capture = send_data_to_arduino(pos_y, video_capture)
                             if status == "succeed":
                                 print("Data sent successfully")
