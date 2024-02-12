@@ -26,7 +26,7 @@ def show_camera(model):
         try:
             while True:
                 _, frame = video_capture.read()
-                # Bitwise-AND mask into frame.
+                # Bitwise-AND mask into frame
                 frame = cv2.bitwise_and(frame, mask)
                 results = model(frame, stream=True, conf=0.5, half=True, device=0)  
                 #CALCULATE FPS
