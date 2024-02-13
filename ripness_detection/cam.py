@@ -24,8 +24,6 @@ def open_webcam(pipeline):
         return None
     return cap
 
-
-
 def show_camera(pipeline):
     global running
     running = True

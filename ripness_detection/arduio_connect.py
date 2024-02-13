@@ -14,7 +14,7 @@ def send_data_to_arduino(data):
     time.sleep(0.5)  # Ensure Arduino has time to process data
     return True
 
-def arduino_receive_callback(arduino):
+def arduino_receive(arduino):
     while True:
         received_data = arduino.readline().decode('utf8').strip()
         if received_data:
