@@ -40,7 +40,7 @@ def find_horizon_center(box):
     return (int(box[0]) + int(box[2]))//2
 
 def find_strawberry(result):
-    ripe_strawberries = []
+    strawberries = []
     img = result.orig_img
     for _, c in enumerate(result):
         _, mask3ch = extract_contour_and_mask(c)
@@ -60,9 +60,9 @@ def find_strawberry(result):
             center_y = center_y - 80
             cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
             
-            ripe_strawberries.append(center_y)
-    return ripe_strawberries
+            strawberries.append(center_y)
+    return strawberries
             
 def process_frame(result):
-    py = find_strawberry(result)
-    return py
+    strawberries = find_strawberry(result)
+    return strawberries

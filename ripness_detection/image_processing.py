@@ -6,6 +6,7 @@ from process import process_frame
 
 
 WINDOW_TITLE = "USB Camera"
+
 PIPELINE = " ! ".join([
     "v4l2src device=/dev/video0",
     "video/x-raw, width=640, height=480, framerate=30/1",
@@ -40,11 +41,11 @@ def show_camera(model):
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
 
-    #Send data to Arduino to start motor
-    send_data_to_arduino("start")
-
     if video_capture.isOpened():
-        
+
+        #Send data to Arduino to start motor
+        send_data_to_arduino("start")
+
         arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
         arduino_receive_thread.daemon = True
         arduino_receive_thread.start()
@@ -65,10 +66,11 @@ def show_camera(model):
 
             if COUNT >= 50:
                 send_data_to_arduino("finish")
+                close_camera(video_capture)
                 break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.5, half=True, device=0)
+            results = model(frame, stream=True, conf=0.3, half=True, device=0)
             pos_y = process_results(results)
 
             # Send data to Arduino
@@ -82,6 +84,7 @@ def show_camera(model):
                     if received_data_queue.get() == "success":
                         print("Data received by Arduino...")
                         COUNT += 1
+                        print(COUNT)
                         video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                     else:
                         print("Error: Unable to received data from Arduino")
