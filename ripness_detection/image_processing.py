@@ -40,6 +40,9 @@ def show_camera(model):
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
 
+    #Send data to Arduino to start motor
+    send_data_to_arduino("start")
+
     if video_capture.isOpened():
         
         arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
