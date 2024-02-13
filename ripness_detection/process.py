@@ -59,8 +59,9 @@ def find_strawberry(result):
             # Adjust y-coordinate to center_y - 80
             center_y = center_y - 80
             cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
+            pos_y = 16 + (10 - (center_y * 0.0264583333))
+            strawberries.append(pos_y)
             
-            strawberries.append(center_y)
     return strawberries
             
 def process_frame(result):

@@ -26,7 +26,6 @@ def process_results(results):
         py = process_frame(result)
         if py is not None:
             for _, pos_y in enumerate(py):
-                pos_y = 16 + (10 - (pos_y * 0.0264583333))
                 print(pos_y)
                 if pos_y >= 22 or pos_y <= 11:
                     print("Error: Invalid position")
@@ -46,7 +45,9 @@ def show_camera(model):
 
         #Send data to Arduino to start motor
         print('Start Motor...')
+        #Clear State for Arduino
         send_data_to_arduino("stop")
+        #Start Motor
         send_data_to_arduino("start")
 
         # Start a thread to receive data from Arduino
