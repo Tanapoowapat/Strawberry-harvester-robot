@@ -74,14 +74,6 @@ def find_strawberry(result):
             ripe_strawberries.append(center_y)
     return ripe_strawberries
             
-def process_frame(results):
-    """Process the results of frame analysis."""
-    for result in results:
-        py = process_frame(result)
-        if py is not None:
-            for _, pos_y in enumerate(py):
-                pos_y = 16 + (10 - (pos_y * 0.0264583333))
-                if pos_y >= 22 or pos_y <= 11:
-                    print("Error: Invalid position")
-                    return None
-                return pos_y
+def process_frame(result):
+    py = find_strawberry(result)
+    return py
