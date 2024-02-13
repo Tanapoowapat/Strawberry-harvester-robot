@@ -45,6 +45,7 @@ def show_camera(model):
 
         #Send data to Arduino to start motor
         print('Start Motor...')
+        send_data_to_arduino("stop")
         send_data_to_arduino("start")
 
         # Start a thread to receive data from Arduino
@@ -99,6 +100,7 @@ def show_camera(model):
             cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
+                send_data_to_arduino("stop")
                 break
             
     else:
