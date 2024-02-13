@@ -1,78 +1,96 @@
-from process import process_frame
 import cv2
+import threading
 from ultralytics import YOLO
-from utils.utils import fps
-import serial
-import time
-window_title = "USB Camera"
+from arduio_connect import send_data_to_arduino, received_data_queue, arduino_receive_callback, arduino
+from process import process_frame
 
-# ASSIGN CAMERA ADRESS to DEVICE HERE!
-pipeline = " ! ".join(["v4l2src device=/dev/video0",
-                       "video/x-raw, width=640, height=480, framerate=30/1",
-                       "videoconvert",
-                       "video/x-raw, format=(string)BGR",
-                       "appsink"
-                       ])
 
-arduino_port = '/dev/ttyACM0'
-baud_rate = 9600
-arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
+WINDOW_TITLE = "USB Camera"
+PIPELINE = " ! ".join([
+    "v4l2src device=/dev/video0",
+    "video/x-raw, width=640, height=480, framerate=30/1",
+    "videoconvert",
+    "video/x-raw, format=(string)BGR",
+    "appsink"
+])
 
-def send_data_to_arduino(pos_y, cap):
-    cap.release()  # Release the camera
-    cv2.destroyAllWindows()  # Close any OpenCV windows
-    data = f"{pos_y}\n"
-    arduino.write(data.encode())
-    time.sleep(0.1)  # Ensure Arduino has time to process data
-    received_data = ""
-    while received_data != "succeed":
-        received_data = arduino.readline().decode('utf8').strip()
-        if received_data:
-            print("Received data from Arduino:", received_data)
-    cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)  # Reopen the camera
-    return received_data, cap
+def close_camera(cap):
+    """Release the camera and close any OpenCV windows."""
+    cap.release()
+    cv2.destroyAllWindows()
+
+def process_results(results):
+    """Process the results of frame analysis."""
+    for result in results:
+        py = process_frame(result)
+        if py is not None:
+            for _, pos_y in enumerate(py):
+                pos_y = 16 + (10 - (pos_y * 0.0264583333))
+                if pos_y >= 22 or pos_y <= 11:
+                    print("Error: Invalid position")
+                    return None
+                return pos_y
 
 def show_camera(model):
-    _ = model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
+    """Display camera feed and send data to Arduino."""
+    COUNT = 0
+    model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
+
     print('Start Reading Camera...')
-    video_capture = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
+
     if video_capture.isOpened():
+        
+        arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+        arduino_receive_thread.daemon = True
+        arduino_receive_thread.start()
+
         while True:
             ret, frame = video_capture.read()
             if not ret:
                 print("Error: Unable to read frame from camera")
                 break
+            
+            if not received_data_queue.empty():
+                received_data = received_data_queue.get()
+                print("Received data from Arduino:", received_data)
+                if received_data == "done":
+                    print("Done processing")
+                    break
+                else:
+                    print("Error: Invalid data received from Arduino")
+                    break
+
+            if COUNT >= 50:
+                print("Done processing")
+                break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.5, half=True, device=0)  
-            for result in results:
-                py = process_frame(result)
-                if py is not None:
-                    for _, pos_y in enumerate(py):
-                            pos_y = 16 + (10-(pos_y*0.0264583333))
-                            print(pos_y)
-                            if pos_y >= 22 or pos_y <= 11:
-                                print("Error: Invalid position")
-                                break
-                            status, video_capture = send_data_to_arduino(pos_y, video_capture)
-                            if status == "succeed":
-                                print("Data sent successfully")
-                            else:
-                                print("Error sending data to Arduino")
-                                break
-
-            cv2.imshow(window_title, frame)
+            results = model(frame, stream=True, conf=0.5, half=True, device=0)
+            pos_y = process_results(results)
+            if pos_y is not None:
+                close_camera(video_capture)
+                status = send_data_to_arduino(pos_y)
+                if status:
+                    COUNT += 1
+                    # Reopen the camera
+                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                else:
+                    print("Error: Unable to send data to Arduino")
+            
+            cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
                 break
+            
     else:
         print("Error: Unable to open camera")
 
-    video_capture.release()
-    cv2.destroyAllWindows()
+    close_camera(video_capture)
 
 def start_process():
+    """Load YOLO model and start camera processing."""
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model)

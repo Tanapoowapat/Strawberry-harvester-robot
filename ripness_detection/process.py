@@ -56,11 +56,22 @@ def find_strawberry(result):
 
         if ripeness == "Full Ripe":
             center_x, center_y = calculate_centroid(boxes)
-            # Draw the circle
+            # Adjust y-coordinate to center_y - 80
             center_y = center_y - 80
             cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
+            
+            # Create a contour of the strawberry region
+            contour = np.array([[[x1, y1], [x1, y2], [x2, y2], [x2, y1]]])
+            
+            # Fit a rotated rectangle around the contour
+            rect = cv2.minAreaRect(contour)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            
+            # Draw the rotated rectangle
+            cv2.drawContours(img,[box],0,(0,0,255),2)
+            
             ripe_strawberries.append(center_y)
-
     return ripe_strawberries
             
 def process_frame(result):
