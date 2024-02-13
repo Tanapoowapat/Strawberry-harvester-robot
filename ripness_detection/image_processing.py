@@ -27,6 +27,7 @@ def process_results(results):
         if py is not None:
             for _, pos_y in enumerate(py):
                 pos_y = 16 + (10 - (pos_y * 0.0264583333))
+                print(pos_y)
                 if pos_y >= 22 or pos_y <= 11:
                     print("Error: Invalid position")
                     return None
