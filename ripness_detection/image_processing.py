@@ -79,9 +79,6 @@ def show_camera(model):
                 # else:
                 #     print("Error: Unable to send data to Arduino")
                 print(f'{pos_y}')
-                for center_x, center_y, _ in pos_y:
-                    cv2.circle(frame, (int(center_x), int(center_y)), 5, (0, 255, 0), 2)
-
 
 
             cv2.imshow(WINDOW_TITLE, frame)

@@ -69,11 +69,13 @@ def find_strawberry(result):
             box = np.int0(box)
             
             # Draw the rotated rectangle
-            cv2.drawContours(img,[box],0,(0,0,255),2)
+            cv2.drawContours(img, [box],0,(0,0,255),2)
             
             ripe_strawberries.append((center_x, center_y, rect[2]))
-    return ripe_strawberries
+    return ripe_strawberries, img
             
 def process_frame(result):
-    py = find_strawberry(result)
-    return py
+    py, img = find_strawberry(result)
+    for center_x, center_y, _ in py:
+        cv2.circle(img, (int(center_x), int(center_y)), 5, (0, 255, 0), 2)
+    return py[1]
