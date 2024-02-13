@@ -58,7 +58,7 @@ def find_strawberry(result):
             center_x, center_y = calculate_centroid(boxes)
             # Adjust y-coordinate to center_y - 80
             center_y = center_y - 80
-            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
+            #cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
             
             # Create a contour of the strawberry region
             contour = np.array([[[x1, y1], [x1, y2], [x2, y2], [x2, y1]]])
@@ -71,11 +71,12 @@ def find_strawberry(result):
             # Draw the rotated rectangle
             cv2.drawContours(img, [box],0,(0,0,255),2)
             
+            # Draw the center of the rotated rectangle
+            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
+
             ripe_strawberries.append((center_x, center_y, rect[2]))
-    return ripe_strawberries, img
+    return ripe_strawberries
             
 def process_frame(result):
-    py, img = find_strawberry(result)
-    for center_x, center_y, _ in py:
-        cv2.circle(img, (int(center_x), int(center_y)), 5, (0, 255, 0), 2)
+    py= find_strawberry(result)
     return py
