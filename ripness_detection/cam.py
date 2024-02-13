@@ -9,10 +9,36 @@ from utils.utils import calculate_centroid
 #                        "video/x-raw, format=(string)BGR",
 #                        "appsink"
 #                        ])
+import threading
+import queue
+import serial
+
+
+received_data_queue = queue.Queue()
+
+arduino_port = '/dev/ttyACM0'
+baud_rate = 9600
+arduino = serial.Serial(port=arduino_port, baudrate=baud_rate, timeout=1)
+
+def send_data_to_arduino(data):
+    data = f"{data}\n"
+    arduino.write(data.encode())
+    time.sleep(0.5)  # Ensure Arduino has time to process data
+    return True
+
+def arduino_receive_callback(arduino):
+    while True:
+        received_data = arduino.readline().decode('utf8').strip()
+        if received_data:
+            print("Received data from Arduino:", received_data)
+            received_data_queue.put(received_data)
+
+
 
 def close_webcam(cap):
     # Release the VideoCapture object
     cap.release()
+    cv2.destroyAllWindows()
     print('Camera released...')
 
 
@@ -25,23 +51,32 @@ def open_webcam(pipeline):
     return cap
 
 def show_camera(pipeline):
-    global running
-    running = True
     cap = open_webcam(pipeline)
     if cap is None:
         return
+    
+    arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+    arduino_receive_thread.daemon = True
+    arduino_receive_thread.start()
 
     print('Start Reading Camera...')
     
     while True:
-        if running:
-            ret, frame = cap.read()
-            if not ret:
-                print("Error: Failed to capture frame.")
-                break
-            # Display the captured frame
-            cv2.imshow('Webcam', frame)
-        
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Failed to capture frame.")
+            break
+        # Display the captured frame
+        cv2.imshow('Webcam', frame)
+
+        if not received_data_queue.empty():
+                received_data = received_data_queue.get()
+                # Process received data here as needed
+                print("Data received in show_camera function:", received_data)    
+                if received_data == "finish":
+                    close_webcam(cap)
+                    break
+
 
         
         keyCode = cv2.waitKey(10) & 0xFF

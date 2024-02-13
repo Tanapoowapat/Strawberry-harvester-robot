@@ -1,8 +1,8 @@
-import time
 import cv2
 import numpy as np
 from ripness_detection import calculate_percent_in_mask
 from utils.utils import calculate_centroid
+
 def extract_contour_and_mask(c):
     '''Extract contour and mask from the result
         Args: c: result from model
