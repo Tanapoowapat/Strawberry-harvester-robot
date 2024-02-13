@@ -84,6 +84,7 @@ def show_camera(model):
 
             # Send data to Arduino
             if pos_y is not None:
+                print(pos_y)
                 close_camera(video_capture)
                 status = send_data_to_arduino(pos_y)
                 if status:
