@@ -78,4 +78,4 @@ def process_frame(result):
     py, img = find_strawberry(result)
     for center_x, center_y, _ in py:
         cv2.circle(img, (int(center_x), int(center_y)), 5, (0, 255, 0), 2)
-    return py[1]
+    return py
