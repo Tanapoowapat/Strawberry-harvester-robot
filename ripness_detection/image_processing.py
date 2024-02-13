@@ -40,7 +40,7 @@ def show_camera(model):
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
-
+    MOTOR = False
     if video_capture.isOpened():
 
         #Send data to Arduino to start motor
@@ -63,6 +63,10 @@ def show_camera(model):
             if not ret:
                 print("Error: Unable to read frame from camera")
                 break
+            
+            if MOTOR == False:
+                send_data_to_arduino("start")
+                MOTOR = True
             
             if not received_data_queue.empty():
                 received_data = received_data_queue.get()
