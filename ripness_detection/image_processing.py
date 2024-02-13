@@ -78,7 +78,8 @@ def show_camera(model):
                 #     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                 # else:
                 #     print("Error: Unable to send data to Arduino")
-                print(pos_y)            
+                print(pos_y)
+                            
             cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
