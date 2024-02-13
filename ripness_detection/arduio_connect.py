@@ -1,8 +1,5 @@
 import time
 import serial
-import queue
-
-received_data_queue = queue.Queue()
 
 arduino_port = '/dev/ttyACM0'
 baud_rate = 9600
@@ -19,5 +16,4 @@ def arduino_receive(arduino):
         received_data = arduino.readline().decode('utf8').strip()
         if received_data:
             print("Received data from Arduino:", received_data)
-            # Process received data here as needed
-            received_data_queue.put(received_data)
+            return received_data

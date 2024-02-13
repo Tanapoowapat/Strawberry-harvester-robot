@@ -1,7 +1,7 @@
 import cv2
 import threading
 from ultralytics import YOLO
-#from arduio_connect import send_data_to_arduino, received_data_queue, arduino_receive_callback, arduino
+from arduio_connect import send_data_to_arduino, arduino_receive, arduino
 from process import process_frame
 
 
@@ -23,15 +23,14 @@ def process_results(results):
     """Process the results of frame analysis."""
     for result in results:
         py = process_frame(result)
-        # if py is not None:
-        #     for _, pos_y in enumerate(py):
-        #         pos_y = 16 + (10 - (pos_y * 0.0264583333))
-        #         if pos_y >= 22 or pos_y <= 11:
-        #             print("Error: Invalid position")
-        #             return None
-        #         return pos_y
-        print(py)
-        
+        if py is not None:
+            for _, pos_y in enumerate(py):
+                pos_y = 16 + (10 - (pos_y * 0.0264583333))
+                if pos_y >= 22 or pos_y <= 11:
+                    print("Error: Invalid position")
+                    return None
+                return pos_y
+
 def show_camera(model):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
@@ -43,45 +42,31 @@ def show_camera(model):
 
     if video_capture.isOpened():
         
-        # arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
-        # arduino_receive_thread.daemon = True
-        # arduino_receive_thread.start()
-
         while True:
             ret, frame = video_capture.read()
             if not ret:
                 print("Error: Unable to read frame from camera")
                 break
             
-            # if not received_data_queue.empty():
-            #     received_data = received_data_queue.get()
-            #     print("Received data from Arduino:", received_data)
-            #     if received_data == "done":
-            #         print("Done processing")
-            #         break
-            #     else:
-            #         print("Error: Invalid data received from Arduino")
-            #         break
-
-            # if COUNT >= 50:
-            #     print("Done processing")
-            #     break
+            if COUNT >= 50:
+                print("Done processing")
+                break
 
             frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, half=True, device=0)
-            process_results(results)
-            # if pos_y is not None:
-            #     # close_camera(video_capture)
-            #     # status = send_data_to_arduino(pos_y)
-            #     # if status:
-            #     #     COUNT += 1
-            #     #     # Reopen the camera
-            #     #     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-            #     # else:
-            #     #     print("Error: Unable to send data to Arduino")
-            #     print(f'{pos_y}')
-
-
+            pos_y = process_results(results)
+            if pos_y is not None:
+                close_camera(video_capture)
+                status = send_data_to_arduino(pos_y)
+                if status:
+                    data = arduino_receive(arduino)
+                    if data:
+                        print("Received data from Arduino:", data)
+                        COUNT += 1
+                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                else:
+                    print("Error: Unable to send data to Arduino")
+            
             cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
