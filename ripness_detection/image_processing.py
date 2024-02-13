@@ -1,6 +1,7 @@
 import cv2
+import threading
 from ultralytics import YOLO
-from arduio_connect import send_data_to_arduino, received_data_queue, arduino_receive, arduino
+#from arduio_connect import send_data_to_arduino, received_data_queue, arduino_receive_callback, arduino
 from process import process_frame
 
 
@@ -18,6 +19,18 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
+def process_results(results):
+    """Process the results of frame analysis."""
+    for result in results:
+        py = process_frame(result)
+        if py is not None:
+            for _, pos_y in enumerate(py):
+                pos_y = 16 + (10 - (pos_y * 0.0264583333))
+                if pos_y >= 22 or pos_y <= 11:
+                    print("Error: Invalid position")
+                    return None
+                return pos_y
+
 def show_camera(model):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
@@ -28,6 +41,10 @@ def show_camera(model):
     mask = cv2.imread('mask.png')
 
     if video_capture.isOpened():
+        
+        # arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+        # arduino_receive_thread.daemon = True
+        # arduino_receive_thread.start()
 
         while True:
             ret, frame = video_capture.read()
@@ -51,7 +68,7 @@ def show_camera(model):
 
             frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, half=True, device=0)
-            pos_y = process_frame(results)
+            pos_y = process_results(results)
             if pos_y is not None:
                 # close_camera(video_capture)
                 # status = send_data_to_arduino(pos_y)
@@ -61,7 +78,7 @@ def show_camera(model):
                 #     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                 # else:
                 #     print("Error: Unable to send data to Arduino")
-                print("Position Y:", pos_y)
+                print(pos_y)            
             cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
