@@ -44,8 +44,11 @@ def show_camera(model):
     if video_capture.isOpened():
 
         #Send data to Arduino to start motor
+        print('Start Motor...')
         send_data_to_arduino("start")
 
+        # Start a thread to receive data from Arduino
+        print('Start Arduino receive thread...')
         arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
         arduino_receive_thread.daemon = True
         arduino_receive_thread.start()
@@ -67,10 +70,11 @@ def show_camera(model):
             if COUNT >= 50:
                 send_data_to_arduino("finish")
                 close_camera(video_capture)
+
                 break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.3, half=True, device=0)
+            results = model(frame, stream=True, conf=0.5, half=True, device=0)
             pos_y = process_results(results)
 
             # Send data to Arduino
