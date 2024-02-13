@@ -57,8 +57,7 @@ def find_strawberry(result):
         if ripeness == "Full Ripe":
             center_x, center_y = calculate_centroid(boxes)
             # Adjust y-coordinate to center_y - 80
-            center_y = center_y - 80
-            cv2.circle(img, (center_x, center_y), 5, (0, 255, 0), 2)
+            cv2.circle(img, (center_x, center_y-80), 5, (0, 255, 0), 2)
             pos_y = 16 + (10 - (center_y * 0.0264583333))
             strawberries.append(pos_y)
             

@@ -48,13 +48,15 @@ def show_camera(model):
         #Clear State for Arduino
         send_data_to_arduino("stop")
         #Start Motor
-        send_data_to_arduino("start")
+
 
         # Start a thread to receive data from Arduino
         print('Start Arduino receive thread...')
         arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
         arduino_receive_thread.daemon = True
         arduino_receive_thread.start()
+
+        send_data_to_arduino("start")
 
         while True:
             ret, frame = video_capture.read()
