@@ -1,7 +1,7 @@
 import cv2
 import threading
 from ultralytics import YOLO
-from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
+#from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
 
 
@@ -20,10 +20,10 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
-def process_results(results):
+def process_results(results, ripeness):
     """Process the results of frame analysis."""
     for result in results:
-        py = process_frame(result)
+        py = process_frame(result, ripeness)
         if py is not None:
             for _, pos_y in enumerate(py):
                 print(pos_y)
@@ -32,7 +32,7 @@ def process_results(results):
                     return None
                 return pos_y
 
-def show_camera(model):
+def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
     model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
@@ -40,23 +40,17 @@ def show_camera(model):
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
-    MOTOR = False
+    # MOTOR = False
     if video_capture.isOpened():
 
-        #Send data to Arduino to start motor
-        print('Start Motor...')
         #Clear State for Arduino
-        send_data_to_arduino("stop")
-        #Start Motor
-
+        #send_data_to_arduino("stop")
 
         # Start a thread to receive data from Arduino
         print('Start Arduino receive thread...')
-        arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
-        arduino_receive_thread.daemon = True
-        arduino_receive_thread.start()
-
-        send_data_to_arduino("start")
+        # arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+        # arduino_receive_thread.daemon = True
+        # arduino_receive_thread.start()
 
         while True:
             ret, frame = video_capture.read()
@@ -65,51 +59,52 @@ def show_camera(model):
                 break
             
             if MOTOR == False:
-                send_data_to_arduino("start")
+                print('Start Motor...')
+                #send_data_to_arduino("start")
                 MOTOR = True
             
-            if not received_data_queue.empty():
-                received_data = received_data_queue.get()
-                print("Data received in show_camera function:", received_data)
-                # if data == "finish" then stop capturing frames stop
-                if received_data == "finish":
-                    close_camera(video_capture)
-                    break
+            # if not received_data_queue.empty():
+            #     received_data = received_data_queue.get()
+            #     print("Data received in show_camera function:", received_data)
+            #     # if data == "finish" then stop capturing frames stop
+            #     if received_data == "finish":
+            #         close_camera(video_capture)
+            #         break
 
-            if COUNT >= 50:
-                send_data_to_arduino("finish")
-                close_camera(video_capture)
-
-                break
+            # if COUNT >= 50:
+            #     send_data_to_arduino("finish")
+            #     close_camera(video_capture)
+            #     break
 
             frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, half=True, device=0)
-            pos_y = process_results(results)
+            pos_y = process_results(results, ripeness)
 
             # Send data to Arduino
             if pos_y is not None:
                 print(pos_y)
-                close_camera(video_capture)
-                status = send_data_to_arduino(pos_y)
-                if status:
-                    print("Data sent to Arduino...")
-                    while received_data_queue.empty():
-                        pass
-                    if received_data_queue.get() == "success":
-                        print("Data received by Arduino...")
-                        COUNT += 1
-                        print(COUNT)
-                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                    else:
-                        print("Error: Unable to received data from Arduino")
-                else:
-                    print("Error: Unable to send data to Arduino")
+                # close_camera(video_capture)
+                # status = send_data_to_arduino(pos_y)
+                # if status:
+                #     print("Data sent to Arduino...")
+                #     while received_data_queue.empty():
+                #         pass
+                #     if received_data_queue.get() == "success":
+                #         print("Data received by Arduino...")
+                #         COUNT += 1
+                #         print(COUNT)
+                #         video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                #     else:
+                #         print("Error: Unable to received data from Arduino")
+                # else:
+                #     print("Error: Unable to send data to Arduino")
             
             # Display the captured frame
             # cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
-                send_data_to_arduino("stop")
+                #send_data_to_arduino("finish")
+                MOTOR = False
                 break
             
     else:
@@ -117,10 +112,10 @@ def show_camera(model):
 
     close_camera(video_capture)
 
-def start_process():
+def start_process(ripeness):
     """Load YOLO model and start camera processing."""
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
-    show_camera(model)
+    show_camera(model, ripeness)
 
-start_process()
+start_process(ripeness="FullRipe")

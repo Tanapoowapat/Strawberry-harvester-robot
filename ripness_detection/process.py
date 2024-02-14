@@ -23,13 +23,13 @@ def extract_contour_and_mask(c):
 
 def ripness_level(red_percent, green_percent):
     if red_percent >= 80 and green_percent < 10:
-        return 'Full Ripe'
+        return 'FullRipe'
     elif 80 < red_percent >= 70 and green_percent < 20:
         return 'Ripe'
     elif 70 < red_percent >= 50 and green_percent < 40:
-        return 'Medium Ripe'
+        return 'MediumRipe'
     elif 50 < red_percent >= 30 and green_percent < 60:
-        return 'Small Ripe'
+        return 'SmallRipe'
     elif 30 < red_percent >= 10 or green_percent < 80:
         return 'Unripe'
 
@@ -39,7 +39,7 @@ def find_horizon_center(box):
     '''
     return (int(box[0]) + int(box[2]))//2
 
-def find_strawberry(result):
+def find_strawberry(result, input_ripeness):
     strawberries = []
     img = result.orig_img
     for _, c in enumerate(result):
@@ -54,7 +54,7 @@ def find_strawberry(result):
         ripeness = ripness_level(red_color_percent, green_color_percent)
         boxes = (x1, y1, x2, y2)
 
-        if ripeness == "Full Ripe":
+        if ripeness == input_ripeness:
             center_x, center_y = calculate_centroid(boxes)
             # Adjust y-coordinate to center_y - 80
             cv2.circle(img, (center_x, center_y-80), 5, (0, 255, 0), 2)
@@ -63,6 +63,6 @@ def find_strawberry(result):
             
     return strawberries
             
-def process_frame(result):
-    strawberries = find_strawberry(result)
+def process_frame(result, ripeness):
+    strawberries = find_strawberry(result, ripeness)
     return strawberries
