@@ -40,7 +40,7 @@ def show_camera(model, ripeness):
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
-    # MOTOR = False
+    MOTOR = False
     if video_capture.isOpened():
 
         #Clear State for Arduino
