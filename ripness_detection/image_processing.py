@@ -54,7 +54,7 @@ def show_camera(model, ripeness):
                 print('Start Motor...')
                 #send_data_to_arduino("start")
                 MOTOR = True
-            
+                
             # if not received_data_queue.empty():
             #     received_data = received_data_queue.get()
             #     print("Data received in show_camera function:", received_data)
