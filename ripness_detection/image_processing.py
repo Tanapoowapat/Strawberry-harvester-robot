@@ -93,7 +93,9 @@ def show_camera(model, ripeness):
                             #         print("Error: Unable to received data from Arduino")
                             # else:
                             #     print("Error: Unable to send data to Arduino")
-                        
+                else:
+                    pass
+                
             # Display the captured frame
             # cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
