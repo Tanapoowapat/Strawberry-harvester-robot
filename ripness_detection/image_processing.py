@@ -95,8 +95,8 @@ def show_camera(model, ripeness):
                                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                                             process = False
                                             break
-                                    else:
-                                        print("Error: Unable to received data from Arduino")
+                                if process == False:
+                                    break
                                 else:
                                     print("Error: Unable to send data to Arduino")
                             print(process)
