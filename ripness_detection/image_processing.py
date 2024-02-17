@@ -3,7 +3,7 @@ import threading
 from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
-from utils import fps
+from utils.utils import fps
 
 
 WINDOW_TITLE = "USB Camera"
