@@ -69,7 +69,7 @@ def show_camera(model, ripeness):
                 break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.5, device=0)
+            results = model(frame, stream=True, conf=0.2, device=0)
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
@@ -83,11 +83,11 @@ def show_camera(model, ripeness):
                             status = send_data_to_arduino(pos_y)
                             if status:
                                 print("Data sent to Arduino...")
-                                send_data_to_arduino("stop")
                                 while received_data_queue.empty():
                                     pass
                                 if received_data_queue.get() == "success":
-                                    print("Data received by Arduino...")
+                                    data = received_data_queue.get()
+                                    print(f"Data received by Arduino...{data}")
                                     COUNT += 1
                                     print(COUNT)
                                     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
