@@ -51,10 +51,11 @@ def show_camera(model, ripeness):
                 print("Error: Unable to read frame from camera")
                 break
             
-            if MOTOR == False:
-                print('Start Motor...')
-                send_data_to_arduino("start")
-                MOTOR = True
+            if not MOTOR:
+                if video_capture.isOpened():
+                    print('Start Motor...')
+                    send_data_to_arduino("start")
+                    MOTOR = True
                 
             if not received_data_queue.empty():
                 received_data = received_data_queue.get()
@@ -99,7 +100,7 @@ def show_camera(model, ripeness):
                     pass
                 
             # Display the captured frame
-            #cv2.imshow(WINDOW_TITLE, frame)
+            cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
                 send_data_to_arduino("stop")
