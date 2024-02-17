@@ -99,6 +99,7 @@ def show_camera(model, ripeness):
                                         print("Error: Unable to received data from Arduino")
                                 else:
                                     print("Error: Unable to send data to Arduino")
+                            print(process)
                 else:
                     pass
                 
