@@ -20,15 +20,9 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
-def process_results(results, ripeness):
-    """Process the results of frame analysis."""
-    pass
-
 def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
-    model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
-
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
@@ -84,13 +78,14 @@ def show_camera(model, ripeness):
                             if status:
                                 print("Data sent to Arduino...")
                                 while received_data_queue.empty():
-                                    pass
-                                if received_data_queue.get() == "success":
                                     data = received_data_queue.get()
-                                    print(f"Data received by Arduino...{data}")
-                                    COUNT += 1
-                                    print(COUNT)
-                                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                                    pass
+                                    if data == "success":
+                                        print(f"Data received by Arduino... {data}")
+                                        COUNT += 1
+                                        print(COUNT)
+                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                                        break
                                 else:
                                     print("Error: Unable to received data from Arduino")
                             else:
