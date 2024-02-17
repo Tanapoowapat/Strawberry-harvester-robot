@@ -25,10 +25,11 @@ def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
     model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
-    
+    new_frame_time = 0
+    prev_frame_time = 0
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-    mask = cv2.imread('mask.png')
+    
     MOTOR = False
     if video_capture.isOpened():
 
@@ -67,8 +68,10 @@ def show_camera(model, ripeness):
                 close_camera(video_capture)
                 break
 
-            frame = cv2.bitwise_and(frame, mask)
+            
             results = model(frame, stream=True, conf=0.5, device=0)
+            prev_frame_time = fps(new_frame_time, prev_frame_time)
+            
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
