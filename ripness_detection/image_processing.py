@@ -100,7 +100,7 @@ def show_camera(model, ripeness):
             cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
-                #send_data_to_arduino("finish")
+                send_data_to_arduino("stop")
                 MOTOR = False
                 break
             
