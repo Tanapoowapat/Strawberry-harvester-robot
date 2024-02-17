@@ -80,22 +80,25 @@ def show_camera(model, ripeness):
                             print("Error: Invalid position")
                         else:
                             print(pos_y)
-                            close_camera(video_capture)
-                            status = send_data_to_arduino(pos_y)
-                            if status:
-                                print("Data sent to Arduino...")
-                                while received_data_queue.empty():
-                                    pass
-                                    if received_data_queue.get() == "success":
-                                        print("Data received by Arduino...")
-                                        COUNT += 1
-                                        print(COUNT)
-                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                                        break
+                            process = True
+                            while process:
+                                close_camera(video_capture)
+                                status = send_data_to_arduino(pos_y)
+                                if status:
+                                    print("Data sent to Arduino...")
+                                    while received_data_queue.empty():
+                                        pass
+                                        if received_data_queue.get() == "success":
+                                            print("Data received by Arduino...")
+                                            COUNT += 1
+                                            print(COUNT)
+                                            video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                                            process = False
+                                            break
+                                    else:
+                                        print("Error: Unable to received data from Arduino")
                                 else:
-                                    print("Error: Unable to received data from Arduino")
-                            else:
-                                print("Error: Unable to send data to Arduino")
+                                    print("Error: Unable to send data to Arduino")
                 else:
                     pass
                 
