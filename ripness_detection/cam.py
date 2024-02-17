@@ -1,10 +1,12 @@
-'''
-check track if track == 0 then turn left
-check full if full == 1 then turn right
-track =+  1
-
-check track if track == 1 then turn left 
-'''
+from ultralytics import YOLO
+import cv2
 
 
-        
+
+PIPELINE = " ! ".join([
+    "v4l2src device=/dev/video0",
+    "video/x-raw, width=640, height=480, framerate=30/1",
+    "videoconvert",
+    "video/x-raw, format=(string)BGR",
+    "appsink"
+])

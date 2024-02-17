@@ -21,10 +21,6 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
-def process_results(results, ripeness):
-    """Process the results of frame analysis."""
-    pass
-
 def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
@@ -32,7 +28,7 @@ def show_camera(model, ripeness):
     
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-    #mask = cv2.imread('mask.png')
+    mask = cv2.imread('mask.png')
     MOTOR = False
     if video_capture.isOpened():
 
@@ -56,6 +52,7 @@ def show_camera(model, ripeness):
                     print('Start Motor...')
                     send_data_to_arduino("start")
                     MOTOR = True
+        
                 
             if not received_data_queue.empty():
                 received_data = received_data_queue.get()
@@ -70,7 +67,7 @@ def show_camera(model, ripeness):
                 close_camera(video_capture)
                 break
 
-            #frame = cv2.bitwise_and(frame, mask)
+            frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, device=0)
             for result in results:
                 py = process_frame(result, ripeness)
