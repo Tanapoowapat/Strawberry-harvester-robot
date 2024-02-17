@@ -70,7 +70,7 @@ def show_camera(model, ripeness):
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
-                    for _, pos_y in py:
+                    for pos_y in py:
                         if pos_y >= 22 or pos_y <= 11:
                             print("Error: Invalid position")
                         else:
@@ -81,17 +81,16 @@ def show_camera(model, ripeness):
                                 print("Data sent to Arduino...")
                                 while received_data_queue.empty():
                                     pass
-                                    if received_data_queue.get() == "success":
-                                        print("Data received by Arduino...")
-                                        COUNT += 1
-                                        print(COUNT)
-                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                                        break
-                                else:
-                                    print("Error: Unable to send data to Arduino")
+                                if received_data_queue.get() == "success":
+                                    print("Data received by Arduino...")
+                                    COUNT += 1
+                                    print(COUNT)
+                                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                            else:
+                                print("Error: Unable to send data to Arduino")
                 else:
                     pass
-                
+                            
             # Display the captured frame
             #cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
