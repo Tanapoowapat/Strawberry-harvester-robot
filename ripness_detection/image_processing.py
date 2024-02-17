@@ -72,11 +72,11 @@ def show_camera(model, ripeness):
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
-                    for index, pos_y in enumerate(py):
+                    for pos_y in py:
                         if pos_y >= 22 or pos_y <= 11:
                             print("Error: Invalid position")
                         else:
-                            print(index, pos_y)
+                            print(pos_y)
                             close_camera(video_capture)
                             status = send_data_to_arduino(pos_y)
                             if status:
