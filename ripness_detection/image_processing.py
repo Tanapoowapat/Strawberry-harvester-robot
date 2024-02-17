@@ -3,7 +3,8 @@ import threading
 from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
-import time
+from utils import fps
+
 
 WINDOW_TITLE = "USB Camera"
 
@@ -28,7 +29,7 @@ def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
     model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
-
+    
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
@@ -84,11 +85,12 @@ def show_camera(model, ripeness):
                                 print("Data sent to Arduino...")
                                 while received_data_queue.empty():
                                     pass
-                                if received_data_queue.get() == "success":
-                                    print("Data received by Arduino...")
-                                    COUNT += 1
-                                    print(COUNT)
-                                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                                    if received_data_queue.get() == "success":
+                                        print("Data received by Arduino...")
+                                        COUNT += 1
+                                        print(COUNT)
+                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                                        break
                                 else:
                                     print("Error: Unable to received data from Arduino")
                             else:
