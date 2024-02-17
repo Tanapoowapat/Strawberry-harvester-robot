@@ -32,7 +32,7 @@ def show_camera(model, ripeness):
     
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-    mask = cv2.imread('mask.png')
+    #mask = cv2.imread('mask.png')
     MOTOR = False
     if video_capture.isOpened():
 
@@ -70,7 +70,7 @@ def show_camera(model, ripeness):
                 close_camera(video_capture)
                 break
 
-            frame = cv2.bitwise_and(frame, mask)
+            #frame = cv2.bitwise_and(frame, mask)
             results = model(frame, stream=True, conf=0.5, device=0)
             for result in results:
                 py = process_frame(result, ripeness)
