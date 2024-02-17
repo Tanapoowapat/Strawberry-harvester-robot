@@ -52,7 +52,7 @@ def show_camera(model, ripeness):
             
             if MOTOR == False:
                 print('Start Motor...')
-                #send_data_to_arduino("start")
+                send_data_to_arduino("start")
                 MOTOR = True
                 
             if not received_data_queue.empty():
