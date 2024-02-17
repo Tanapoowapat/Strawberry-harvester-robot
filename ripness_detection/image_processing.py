@@ -3,7 +3,7 @@ import threading
 from ultralytics import YOLO
 #from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
-
+import time
 
 WINDOW_TITLE = "USB Camera"
 
@@ -69,7 +69,7 @@ def show_camera(model, ripeness):
             #     break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.5, half=True, device=0)
+            results = model(frame, stream=True, conf=0.5, device=0)
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
@@ -78,6 +78,7 @@ def show_camera(model, ripeness):
                             print("Error: Invalid position")
                         else:
                             print(pos_y)
+                            time.sleep(5)
                             # close_camera(video_capture)
                             # status = send_data_to_arduino(pos_y)
                             # if status:
