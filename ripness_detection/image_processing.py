@@ -85,7 +85,7 @@ def show_camera(model, ripeness):
                                 print("Data sent to Arduino...")
                                 while received_data_queue.empty():
                                     pass
-                                if received_data_queue.get() == "success":
+                                    if received_data_queue.get() == "success":
                                         print("Data received by Arduino...")
                                         COUNT += 1
                                         print(COUNT)
