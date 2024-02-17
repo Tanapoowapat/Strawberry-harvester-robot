@@ -54,14 +54,9 @@ def show_camera(model, ripeness):
                     send_data_to_arduino("start")
                     MOTOR = True
         
-                
             if not received_data_queue.empty():
                 received_data = received_data_queue.get()
                 print("Data received in show_camera function:", received_data)
-                # if data == "finish" then stop capturing frames stop
-                if received_data == "finish":
-                    close_camera(video_capture)
-                    break
 
             if COUNT >= 50:
                 send_data_to_arduino("finish")
@@ -69,13 +64,13 @@ def show_camera(model, ripeness):
                 break
 
             
-            results = model(frame, stream=True, conf=0.5, device=0)
+            results = model(frame, stream=True, conf=0.9, device=0)
             prev_frame_time = fps(new_frame_time, prev_frame_time)
             
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
-                    for pos_y in py:
+                    for _, pos_y in py:
                         if pos_y >= 22 or pos_y <= 11:
                             print("Error: Invalid position")
                         else:
