@@ -20,9 +20,15 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
+def process_results(results, ripeness):
+    """Process the results of frame analysis."""
+    pass
+
 def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
+    model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
+
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread('mask.png')
@@ -63,7 +69,7 @@ def show_camera(model, ripeness):
                 break
 
             frame = cv2.bitwise_and(frame, mask)
-            results = model(frame, stream=True, conf=0.2, device=0)
+            results = model(frame, stream=True, conf=0.5, device=0)
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
@@ -72,20 +78,17 @@ def show_camera(model, ripeness):
                             print("Error: Invalid position")
                         else:
                             print(index, pos_y)
-                            #time.sleep(5)
                             close_camera(video_capture)
                             status = send_data_to_arduino(pos_y)
                             if status:
                                 print("Data sent to Arduino...")
                                 while received_data_queue.empty():
-                                    data = received_data_queue.get()
                                     pass
-                                    if data == "success":
-                                        print(f"Data received by Arduino... {data}")
-                                        COUNT += 1
-                                        print(COUNT)
-                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                                        break
+                                if received_data_queue.get() == "success":
+                                    print("Data received by Arduino...")
+                                    COUNT += 1
+                                    print(COUNT)
+                                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                                 else:
                                     print("Error: Unable to received data from Arduino")
                             else:
@@ -94,7 +97,7 @@ def show_camera(model, ripeness):
                     pass
                 
             # Display the captured frame
-            #cv2.imshow(WINDOW_TITLE, frame)
+            cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
                 #send_data_to_arduino("finish")
