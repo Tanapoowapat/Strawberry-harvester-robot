@@ -83,6 +83,7 @@ def show_camera(model, ripeness):
                             status = send_data_to_arduino(pos_y)
                             if status:
                                 print("Data sent to Arduino...")
+                                send_data_to_arduino("stop")
                                 while received_data_queue.empty():
                                     pass
                                 if received_data_queue.get() == "success":
