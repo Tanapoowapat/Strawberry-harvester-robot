@@ -159,6 +159,12 @@ cython_debug/
 
 #ignore Folder
 test_image/
+ripness_detection/test_image/
+
+#ignore all .mp4 files
+*.mp4
+
+
 
 
 # PyCharm
