@@ -65,8 +65,8 @@ def show_camera(model, ripeness):
 
             
             results = model(frame, stream=True, conf=0.9, device=0)
-            prev_frame_time = fps(new_frame_time, prev_frame_time)
-            
+            prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
+            print("FPS:", show_fps)
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
