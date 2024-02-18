@@ -8,7 +8,7 @@ new_frame_time = 0
 prev_frame_time = 0
 
 video = 0
-model = YOLO('model/detection/best.engine', task='detect')
+model = YOLO('model/test_model/best.engine', task='segment')
 
 def corp_result(x1, y1, x2, y2):
     return img[y1:y2, x1:x2]
@@ -67,9 +67,10 @@ def calculate_center_xy(x1, y1, x2, y2):
 # cap = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
 
 cap = cv2.VideoCapture(0)
-
+mask = cv2.imread("mask.png")
 while cap.isOpened():
     ret, frame = cap.read()
+    frame = cv2.bitwise_and(frame, mask)
     if not ret:
         break
     

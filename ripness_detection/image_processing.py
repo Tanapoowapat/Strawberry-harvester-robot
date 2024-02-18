@@ -4,7 +4,7 @@ from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
 from utils.utils import fps
-
+import time
 
 WINDOW_TITLE = "USB Camera"
 
@@ -29,7 +29,7 @@ def show_camera(model, ripeness):
     prev_frame_time = 0
     print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-    
+    mask = cv2.imread("mask.png")
     MOTOR = False
     if video_capture.isOpened():
 
@@ -44,6 +44,8 @@ def show_camera(model, ripeness):
 
         while True:
             ret, frame = video_capture.read()
+            frame = cv2.bitwise_and(frame, mask)
+            
             if not ret:
                 print("Error: Unable to read frame from camera")
                 break
@@ -55,9 +57,12 @@ def show_camera(model, ripeness):
                     MOTOR = True
         
             if not received_data_queue.empty():
-                received_data = received_data_queue.get()
+                received_data = received_data_queue.get() 
                 print("Data received in show_camera function:", received_data)
+                time.sleep(5)
 
+            
+                
             if COUNT >= 50:
                 send_data_to_arduino("finish")
                 close_camera(video_capture)
@@ -82,7 +87,6 @@ def show_camera(model, ripeness):
                                 while received_data_queue.empty():
                                     pass
                                 if received_data_queue.get() == "success":
-                                    print("Data received by Arduino...")
                                     COUNT += 1
                                     print(COUNT)
                                     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
