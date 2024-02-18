@@ -1,7 +1,6 @@
 from ultralytics import YOLO
 from utils.utils import fps
 import numpy as np
-from process import process_frame
 import cv2
 
 
@@ -9,9 +8,10 @@ new_frame_time = 0
 prev_frame_time = 0
 
 video = 0
-model = YOLO('model/test_model/best.engine', task='segment')
+model = YOLO('model/detection/best.engine', task='detect')
 
 def corp_result(x1, y1, x2, y2):
+    
     return img[y1:y2, x1:x2]
 
 
@@ -83,24 +83,14 @@ while cap.isOpened():
         for _, c in enumerate(result):
             x1, y1, x2, y2 = c.boxes.xyxy[0].cpu().numpy().astype(np.int32)
             crop_frame = corp_result(x1, y1, x2, y2)
-            red_color_percent, green_color_percent = color_calculator(crop_frame)
-            ripeness = ripness_calculate(red_color_percent, green_color_percent)
             center_xy = calculate_center_xy(x1, y1, x2, y2)
-            
-            #Draw text of center_xy on bbox
+            red_percent, green_percent = color_calculator(crop_frame)
+            ripness = ripness_calculate(red_percent, green_percent)
+            cv2.putText(frame, ripness, center_xy, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-            cv2.putText(img, str(center_xy), (x1, y1-70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 5)
-            cv2.circle(img, center_xy, 5, (0, 255, 0), 2)
-            cv2.putText(img, ripeness, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(img, f'Red : {red_color_percent:.2f}%', (x1, y1-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.putText(img, f'Green : {green_color_percent:.2f}%', (x1, y1-50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            
-                        
-
-
-    cv2.putText(img, f'{frame_per_sec:.2f} FPS', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.imshow('frame', img)
+    cv2.putText(frame, f'{frame_per_sec:.2f} FPS', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow('frame', frame)
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
