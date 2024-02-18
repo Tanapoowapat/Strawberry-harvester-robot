@@ -5,7 +5,7 @@ from arduio_connect import send_data_to_arduino, arduino_receive_callback, recei
 from process import process_frame
 from utils.utils import fps
 import time
-
+#test ciomim
 WINDOW_TITLE = "USB Camera"
 
 PIPELINE = " ! ".join([
