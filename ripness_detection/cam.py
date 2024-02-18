@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 from utils.utils import fps
 import numpy as np
+from process import process_frame
 import cv2
 
 
