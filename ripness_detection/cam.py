@@ -10,7 +10,16 @@ prev_frame_time = 0
 video = 0
 model = YOLO('model/detection/best.engine', task='detect')
 
-cap = cv2.VideoCapture(1)
+PIPELINE = " ! ".join([
+    "v4l2src device=/dev/video0",
+    "video/x-raw, width=640, height=480, framerate=30/1",
+    "videoconvert",
+    "video/x-raw, format=(string)BGR",
+    "appsink"
+])
+
+
+cap = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
 
 while cap.isOpened():
     ret, frame = cap.read()
