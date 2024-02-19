@@ -32,6 +32,7 @@ def main():
 
 
     #send start command to arduino
+    print('send start...')
     send_data_to_arduino("start")
 
     while True:
@@ -44,8 +45,16 @@ def main():
             if received_data == "close":
                 close_camera(video_capture)
                 continue
+        
+        if video_capture.isOpened():
+            ret, frame = video_capture.read()
+            if not ret:
+                print("Error: Unable to read frame from camera")
+                break
+            cv2.imshow('frame', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
 
-            
 if __name__ == "__main__":
     main()
