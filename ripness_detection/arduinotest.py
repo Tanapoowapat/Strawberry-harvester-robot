@@ -33,6 +33,7 @@ def main():
 
     #send start command to arduino
     print('send start...')
+    time.sleep(2)
     send_data_to_arduino("start\n")
     video_capture = None
     while True:
