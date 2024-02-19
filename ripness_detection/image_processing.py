@@ -55,11 +55,28 @@ def show_camera(model, ripeness):
                     print('Start Motor...')
                     send_data_to_arduino("start")
                     MOTOR = True
-        
+                    close_camera(video_capture)
+                    while received_data_queue.empty():
+                        pass
+                    if received_data_queue.get() == "open":
+                        print("start camera...")
+                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                        break
+
+
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
                 print("Data received in show_camera function:", received_data)
-                time.sleep(5)
+                if received_data == 'close':
+                    print("Close")
+                    close_camera(video_capture)
+                    #wait until received open from arduino
+                    while received_data_queue.empty():
+                        pass
+                    if received_data_queue.get() == "open":
+                        print("start camera...")
+                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                        break
 
             
                 
@@ -97,7 +114,7 @@ def show_camera(model, ripeness):
                     pass
                             
             # Display the captured frame
-            #cv2.imshow(WINDOW_TITLE, frame)
+            cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
                 send_data_to_arduino("stop")
