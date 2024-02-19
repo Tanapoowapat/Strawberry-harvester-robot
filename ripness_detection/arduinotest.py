@@ -34,7 +34,7 @@ def main():
     #send start command to arduino
     print('send start...')
     send_data_to_arduino("start")
-
+    video_capture = None
     while True:
         if not received_data_queue.empty():
             received_data = received_data_queue.get() 
