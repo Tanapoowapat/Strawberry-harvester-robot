@@ -5,8 +5,6 @@ import threading
 import sys
 from image_processing import start_process
 
-
-
 def on_connect(client, userdata, flags, rc):
     client.subscribe("rasp/v_s")
     if rc == 0:

@@ -69,7 +69,7 @@ def show_camera(model, ripeness):
                 break
 
             
-            results = model(frame, stream=True, conf=0.2, device=0)
+            results = model(frame, stream=True, conf=0.5, device=0)
             prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
             print("FPS:", show_fps)
             for result in results:
@@ -87,6 +87,7 @@ def show_camera(model, ripeness):
                                 while received_data_queue.empty():
                                     pass
                                 if received_data_queue.get() == "success":
+                                    print(f'Position {pos_y} sent to Arduino successfully')
                                     COUNT += 1
                                     print(COUNT)
                                     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)

@@ -19,6 +19,5 @@ def arduino_receive_callback(arduino):
         time.sleep(0.5)
         received_data = arduino.readline().decode('utf8').strip()
         if received_data:
-            print("Received data from Arduino:", received_data)
             received_data_queue.put(received_data)
             
