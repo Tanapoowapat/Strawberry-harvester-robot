@@ -28,7 +28,6 @@ def show_camera(model, ripeness):
     model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     new_frame_time = 0
     prev_frame_time = 0
-    print('Start Reading Camera...')
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
     mask = cv2.imread("mask.png")
     MOTOR = False
@@ -68,7 +67,7 @@ def show_camera(model, ripeness):
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
                 print("Data received:", received_data)
-                if received_data_queue.get() == 'close':
+                if received_data == 'close':
                     print("Close")
                     close_camera(video_capture)
                     #wait until received open from arduino
