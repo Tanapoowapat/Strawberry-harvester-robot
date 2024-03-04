@@ -77,15 +77,19 @@ def show_camera(model, ripeness):
                             print("start camera...")
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
+                #received_data_queue == "finish"
+                #break
+                elif received_data == 'finish':
+                    print("Finish")
+                    close_camera(video_capture)
+                    break
 
-            
-                
+    
             if COUNT >= 50:
-                send_data_to_arduino("finish")
+                send_data_to_arduino("full")
                 close_camera(video_capture)
                 break
 
-            
             results = model(frame, stream=True, conf=0.2, device=0)
             prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
             print("FPS:", show_fps)
@@ -110,9 +114,9 @@ def show_camera(model, ripeness):
                                     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             else:
                                 print("Error: Unable to send data to Arduino")
-                else:
-                    pass
-                            
+                    else:
+                        pass
+            
             # Display the captured frame
             # cv2.imshow(WINDOW_TITLE, frame)
             keyCode = cv2.waitKey(10) & 0xFF
@@ -131,5 +135,3 @@ def start_process(ripeness):
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model, ripeness)
-
-start_process("FullRipe")

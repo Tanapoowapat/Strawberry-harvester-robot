@@ -32,6 +32,10 @@ def color_calculator(crop_frame):
     red_color_percent = cv2.countNonZero(maskRed) / cv2.countNonZero(maskRed + maskGreen) * 100
     green_color_percent = cv2.countNonZero(maskGreen) / cv2.countNonZero(maskRed + maskGreen) * 100
 
+    #np.round the percentage
+    red_color_percent = np.round(red_color_percent, 2)
+    green_color_percent = np.round(green_color_percent, 2)
+
     return red_color_percent, green_color_percent
 
 def ripness_calculate(red_percent, green_percent):
@@ -87,13 +91,13 @@ def processing(model, video_cap):
                     #put text ripeness on the frame
                     cv2.putText(frame, ripness, center_xy, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     #put text red and green percent on the frame
-                    cv2.putText(frame, f'Red: {red_percent:.2f}%', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    cv2.putText(frame, f'Green: {green_percent:.2f}%', (x1, y1-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(frame, f'Red: {int(red_percent)}%', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(frame, f'Green: {int(green_percent)}%', (x1, y1-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                     #draw rectangle around the object
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
 
-        cv2.putText(frame, f'{frame_per_sec:.2f} FPS', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f'{frame_per_sec} FPS', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.imshow('frame', frame)
 
 
@@ -101,9 +105,9 @@ def processing(model, video_cap):
             break
 
 def main():
-    video = 0
+    video = 'test_image/2.mp4'
     model = YOLO('model/detection/best.engine', task='detect')
-    model(source='test_image/14.png', conf=0.9, half=True, device=0)
+    #model(source='test_image/14.png', conf=0.9, half=True, device=0)
     processing(model, video)
 
 if __name__ == "__main__":
