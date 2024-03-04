@@ -130,3 +130,5 @@ def start_process(ripeness):
     print('Load Model...')
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model, ripeness)
+
+start_process("FullRipe")
