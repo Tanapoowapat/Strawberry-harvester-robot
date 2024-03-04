@@ -22,7 +22,7 @@ def on_message(client, userdata, msg):
     ch = json_data['ripeness']
     print(f'Server sand : {ch} Type : {type(ch)}\n')
 
-    print(json_data[''])
+    print(json_data['ripeness'])
 
     client.publish("js/outp", json_data['ripeness'])
     if ch == 'q' :
