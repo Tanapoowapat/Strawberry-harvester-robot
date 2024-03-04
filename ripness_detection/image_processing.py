@@ -43,12 +43,12 @@ def show_camera(model, ripeness):
         arduino_receive_thread.start()
 
         while True:
-            ret, frame = video_capture.read()
+            _, frame = video_capture.read()
             frame = cv2.bitwise_and(frame, mask)
             
-            if not ret:
-                print("Error: Unable to read frame from camera")
-                break
+            # if not ret:
+            #     print("Error: Unable to read frame from camera")
+            #     break
             
             if not MOTOR:
                 if video_capture.isOpened():
@@ -72,11 +72,11 @@ def show_camera(model, ripeness):
                     #wait until received open from arduino
                     while received_data_queue.empty():
                         print(received_data_queue.get()) 
-                        if received_data == "open":
+                        if received_data_queue.get() == "open":
                             print('OPEN')
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
-                        elif received_data == 'finish':
+                        elif received_data_queue.get() == 'finish':
                             print("Finish")
                             close_camera(video_capture)
                             return True
