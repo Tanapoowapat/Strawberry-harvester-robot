@@ -67,7 +67,7 @@ def show_camera(model, ripeness):
 
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
-                print("Data received in show_camera function:", received_data)
+                print("Data received:", received_data)
                 if received_data_queue.get() == 'close':
                     print("Close")
                     close_camera(video_capture)
