@@ -6,12 +6,12 @@ import sys
 from image_processing import start_process
 
 def on_connect(client, userdata, flags, rc):
-    client.subscribe("rasp/v_s")
+    client.subscribe("user/input")
     if rc == 0:
-        client.publish("pi/status", 1)
+        client.publish("sys_nano/status", 1)
         print("======================\nConnected successfully\n======================")
     else:
-        client.publish("pi/status", 3)
+        client.publish("sys_nano/status", 3)
         print("Connection failed with code", rc)
 
 def on_message(client, userdata, msg):
@@ -24,7 +24,7 @@ def on_message(client, userdata, msg):
 
     client.publish("js/outp", json_data['ripeness'])
     if ch == 'q' :
-        client.publish("pi/status", 3)
+        client.publish("sys_nano/status", 3)
         print('Received "q". Stopping the program.')
         client.disconnect()
         sys.exit()
@@ -49,7 +49,7 @@ def on_message(client, userdata, msg):
 
         #threading.Thread(target=gpio_loop_and_sleep).start()
     else :
-        client.publish("pi/status", 1)
+        client.publish("sys_nano/status", 1)
         print('Stop it')
     # onlime_sta()
    # print('====================\nServer Status Stanby\n====================')
