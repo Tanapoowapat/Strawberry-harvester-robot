@@ -18,7 +18,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     received_data = msg.payload
     json_data = json.loads(received_data)
-    print(f'Server sand : {json_data} Type: {type(json_data)}\n')
+    # print(f'Server sand : {json_data} Type: {type(json_data)}\n')
     ch = json_data['ripeness']
 
     if ch == 'q' :
@@ -28,6 +28,7 @@ def on_message(client, userdata, msg):
         # sys.exit()
     if 'ripeness' in json_data:
         client.publish("sys_nano/status", 2)
+        time.sleep(1)
         ripeness_level = None
         ripeness = json_data['ripeness']
         if ripeness == 1:
