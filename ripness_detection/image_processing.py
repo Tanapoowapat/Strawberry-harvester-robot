@@ -81,16 +81,17 @@ def show_camera(model, ripeness):
                         #if received_data == "finish":
                         #    close_camera(video_capture)
                         #    break
-                        if received_data_queue.get() == 'finish':
-                            print("finish")
+                        elif received_data_queue.get() == 'finish':
+                            print("finish inside open camera")
                             close_camera(video_capture)
                             FINISH = True
-                            break
+                            return False
+                            
                 if received_data_queue.get() == 'finish':
-                            print("finish")
+                            print("finish outside open camera")
                             close_camera(video_capture)
                             FINISH = True
-                            break
+                            return False
 
     
             if COUNT >= 50:
@@ -100,7 +101,8 @@ def show_camera(model, ripeness):
 
             if FINISH:
                 print("Task Finish...")
-                break
+                return False
+                
 
             results = model(frame, stream=True, conf=0.2, device=0)
             prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
