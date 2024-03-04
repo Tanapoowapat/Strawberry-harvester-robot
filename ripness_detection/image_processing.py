@@ -75,10 +75,10 @@ def show_camera(model, ripeness):
                         if received_data_queue.get() == "open":
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
-                # elif received_data_queue.get() == 'finish':
-                #     print("Finish")
-                #     close_camera(video_capture)
-                #     break
+                elif received_data_queue.get() == 'finish':
+                    print("Finish")
+                    close_camera(video_capture)
+                    break
     
             if COUNT >= 50:
                 send_data_to_arduino("full")
