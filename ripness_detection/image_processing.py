@@ -4,10 +4,8 @@ from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
 from utils.utils import fps
-import time
-#test ciomim
-WINDOW_TITLE = "USB Camera"
 
+WINDOW_TITLE = "USB Camera"
 PIPELINE = " ! ".join([
     "v4l2src device=/dev/video0",
     "video/x-raw, width=640, height=480, framerate=30/1",
@@ -57,7 +55,6 @@ def show_camera(model, ripeness):
                     MOTOR = True
                     close_camera(video_capture)
 
-
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
                 print("Data received in show_camera function:", received_data)
@@ -79,7 +76,7 @@ def show_camera(model, ripeness):
                 break
 
 
-            if not video_capture.isOpened():
+            if video_capture.isOpened():
                 results = model(frame, stream=True, conf=0.2, device=0)
                 prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
                 print("FPS:", show_fps)
@@ -104,8 +101,10 @@ def show_camera(model, ripeness):
                                         video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                                 else:
                                     print("Error: Unable to send data to Arduino")
-                        else:
-                            pass
+                else:
+                    pass
+            else:
+                pass
             
             # Display the captured frame
             # cv2.imshow(WINDOW_TITLE, frame)
