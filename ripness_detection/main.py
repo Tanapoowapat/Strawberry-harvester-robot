@@ -22,15 +22,17 @@ def on_message(client, userdata, msg):
     #ch = json_data['ripeness']
     #print(f'Server sand : {ch} Type : {type(ch)}\n')
 
-    #print(f'json data {json_data['ripeness']}')
+    print(json_data[''])
 
     client.publish("js/outp", json_data['ripeness'])
+    print(json_data['ripeness'])
     if ch == 'q' :
         client.publish("sys_nano/status", 3)
         print('Received "q". Stopping the program.')
         client.disconnect()
         sys.exit()
     if 'ripeness' in json_data:
+        print('KUYRAIPA')
         ripeness_level = None
         ripeness = json_data['ripeness']
         if ripeness == 1:
