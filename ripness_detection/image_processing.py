@@ -74,6 +74,7 @@ def show_camera(model, ripeness):
                     while received_data_queue.empty():
                         pass
                         if received_data_queue.get() == "open":
+                            print("Start Camera...")
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
                         #if received_data == "finish":
