@@ -34,19 +34,25 @@ def on_message(client, userdata, msg):
         ripeness_level = None
         ripeness = json_data['ripeness']
         if ripeness == 1:
-            ripeness_level = 'Unripe' 
+            ripeness_level = 'Unripe'
+            print(f'{ripeness_level}')
         elif ripeness == 2:
-            ripeness_level = 'SmallRipe' 
+            ripeness_level = 'SmallRipe'
+            print(f'{ripeness_level}') 
         elif ripeness == 3:
-            ripeness_level = 'MediumRipe' 
+            ripeness_level = 'MediumRipe'
+            print(f'{ripeness_level}') 
         elif ripeness == 4:
             ripeness_level = 'Ripe' 
+            print(f'{ripeness_level}')
         elif ripeness == 5:
-            ripeness_level = 'FullRipe' 
+            ripeness_level = 'FullRipe'
+            print(f'{ripeness_level}')
         else:
             print('unknow input')
 
         if ripeness_level is not None:
+            print(f'{ripeness_level}')
             start_process(ripeness_level)
 
         #threading.Thread(target=gpio_loop_and_sleep).start()
