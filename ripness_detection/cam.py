@@ -75,7 +75,7 @@ def processing(model, video_cap):
         if not ret:
             break
         
-        results = model(frame, conf=0.9, iou=0.5, half=True,  stream=True)
+        results = model(frame, conf=0.5, iou=0.5, half=True,  stream=True)
         prev_frame_time, frame_per_sec = fps(new_frame_time, prev_frame_time)
         
         for result in results:
@@ -87,14 +87,13 @@ def processing(model, video_cap):
                 red_percent, green_percent = color_calculator(crop_frame)
                 ripness = ripness_calculate(red_percent, green_percent)
 
-                if ripness == 'FullRipe':
-                    #put text ripeness on the frame
-                    cv2.putText(frame, ripness, center_xy, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    #put text red and green percent on the frame
-                    cv2.putText(frame, f'Red: {int(red_percent)}%', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    cv2.putText(frame, f'Green: {int(green_percent)}%', (x1, y1-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    #draw rectangle around the object
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                #put text ripeness on the frame
+                cv2.putText(frame, ripness, center_xy, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                #put text red and green percent on the frame
+                cv2.putText(frame, f'Red: {int(red_percent)}%', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, f'Green: {int(green_percent)}%', (x1, y1-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                #draw rectangle around the object
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
 
         cv2.putText(frame, f'{frame_per_sec} FPS', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -105,7 +104,7 @@ def processing(model, video_cap):
             break
 
 def main():
-    video = 'test_image/2.mp4'
+    video = 0
     model = YOLO('model/detection/best.engine', task='detect')
     #model(source='test_image/14.png', conf=0.9, half=True, device=0)
     processing(model, video)
