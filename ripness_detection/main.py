@@ -19,13 +19,12 @@ def on_message(client, userdata, msg):
     json_data = json.loads(received_data)
     global ch  
     print(f'Server sand : {json_data} Type: {type(json_data)}\n')
-    #ch = json_data['ripeness']
-    #print(f'Server sand : {ch} Type : {type(ch)}\n')
+    ch = json_data['ripeness']
+    print(f'Server sand : {ch} Type : {type(ch)}\n')
 
     print(json_data[''])
 
     client.publish("js/outp", json_data['ripeness'])
-    print(json_data['ripeness'])
     if ch == 'q' :
         client.publish("sys_nano/status", 3)
         print('Received "q". Stopping the program.')
