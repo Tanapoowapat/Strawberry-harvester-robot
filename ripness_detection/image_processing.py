@@ -35,7 +35,7 @@ def show_camera(model, ripeness):
 
         #Clear State for Arduino
         send_data_to_arduino("stop")
-
+        
         # Start a thread to receive data from Arduino
         print('Start Arduino receive thread...')
         arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
@@ -71,14 +71,13 @@ def show_camera(model, ripeness):
                     close_camera(video_capture)
                     #wait until received open from arduino
                     while received_data_queue.empty():
-                        
                         if received_data_queue.get() == "open":
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
-                elif received_data_queue.get() == 'finish':
-                    print("Finish")
-                    close_camera(video_capture)
-                    break
+                        elif received_data_queue.get() == 'finish':
+                            print("Finish")
+                            close_camera(video_capture)
+                            return True
     
             if COUNT >= 50:
                 send_data_to_arduino("full")
@@ -131,4 +130,6 @@ def start_process(ripeness):
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model, ripeness)
 
-start_process("FullRipe")
+task = start_process("FullRipe")
+if task:
+    print('Task Done!...')
