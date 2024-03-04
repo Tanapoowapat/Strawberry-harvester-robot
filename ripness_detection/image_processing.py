@@ -24,6 +24,7 @@ def close_camera(cap):
 def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
+    FINISH = False
     model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
     new_frame_time = 0
     prev_frame_time = 0
@@ -76,18 +77,25 @@ def show_camera(model, ripeness):
                         if received_data_queue.get() == "open":
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
-                #received_data_queue == "finish"
-                #break
-                elif received_data_queue.get() == 'finish':
-                    print("Finish")
-                    close_camera(video_capture)
-                    break
+                        #if received_data == "finish":
+                        #    close_camera(video_capture)
+                        #    break
+                        if received_data_queue.get() == 'finish':
+                            print("finish")
+                            close_camera(video_capture)
+                            FINISH = True
+                            break
+        
+
     
             if COUNT >= 50:
                 send_data_to_arduino("full")
                 close_camera(video_capture)
                 break
 
+            if FINISH:
+                break
+            
             results = model(frame, stream=True, conf=0.2, device=0)
             prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
             print("FPS:", show_fps)
