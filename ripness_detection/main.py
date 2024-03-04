@@ -18,7 +18,7 @@ def on_message(client, userdata, msg):
     received_data = msg.payload
     json_data = json.loads(received_data)
     global ch  
-    #print(f'Server sand : {json_data} Type: {type(json_data)}\n')
+    print(f'Server sand : {json_data} Type: {type(json_data)}\n')
     #ch = json_data['ripeness']
     #print(f'Server sand : {ch} Type : {type(ch)}\n')
 
