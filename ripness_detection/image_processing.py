@@ -53,7 +53,9 @@ def show_camera(model, ripeness):
                     print('Start Motor...')
                     send_data_to_arduino("start")
                     MOTOR = True
+                    print('close camera...')
                     close_camera(video_capture)
+
 
             if not received_data_queue.empty():
                 print("Data received in show_camera function:",  received_data_queue.get() )
@@ -105,18 +107,18 @@ def show_camera(model, ripeness):
             else:
                 pass
             
-            # Display the captured frame
-            # cv2.imshow(WINDOW_TITLE, frame)
-            keyCode = cv2.waitKey(10) & 0xFF
-            if keyCode == 27 or keyCode == ord('q'):
-                send_data_to_arduino("stop")
-                MOTOR = False
-                break
+            # # Display the captured frame
+            # # cv2.imshow(WINDOW_TITLE, frame)
+            # keyCode = cv2.waitKey(10) & 0xFF
+            # if keyCode == 27 or keyCode == ord('q'):
+            #     send_data_to_arduino("stop")
+            #     MOTOR = False
+            #     break
             
     else:
         print("Error: Unable to open camera")
 
-    close_camera(video_capture)
+    # close_camera(video_capture)
 
 def start_process(ripeness):
     """Load YOLO model and start camera processing."""
