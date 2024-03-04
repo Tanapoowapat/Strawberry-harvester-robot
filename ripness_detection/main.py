@@ -5,6 +5,7 @@ import threading
 import sys
 from image_processing import start_process
 
+
 def on_connect(client, userdata, flags, rc):
     client.subscribe("user/input")
     if rc == 0:
@@ -17,38 +18,28 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     received_data = msg.payload
     json_data = json.loads(received_data)
-    global ch  
-    print(f'Server sand : {json_data} Type: {type(json_data)}\n')
+    #print(f'Server sand : {json_data} Type: {type(json_data)}\n')
     ch = json_data['ripeness']
-    print(f'Server sand : {ch} Type : {type(ch)}\n')
 
-    print(json_data['ripeness'])
-
-    client.publish("js/outp", json_data['ripeness'])
     if ch == 'q' :
-        client.publish("sys_nano/status", 3)
         print('Received "q". Stopping the program.')
+        client.publish("sys_nano/status", 3)
         client.disconnect()
-        sys.exit()
-    if 'ripeness' in json_data:
-        print('KUYRAIPA')
-        ripeness_level = None
-        ripeness = json_data['ripeness']
+        # sys.exit()
+        if 'ripeness' in json_data:
+            client.publish("sys_nano/status", 2)
+            ripeness_level = None
+            ripeness = json_data['ripeness']
         if ripeness == 1:
-            ripeness_level = 'Unripe'
-            print(f'{ripeness_level}')
+            ripeness_level = 'Unripe' 
         elif ripeness == 2:
-            ripeness_level = 'SmallRipe'
-            print(f'{ripeness_level}') 
+            ripeness_level = 'SmallRipe' 
         elif ripeness == 3:
-            ripeness_level = 'MediumRipe'
-            print(f'{ripeness_level}') 
+            ripeness_level = 'MediumRipe' 
         elif ripeness == 4:
             ripeness_level = 'Ripe' 
-            print(f'{ripeness_level}')
         elif ripeness == 5:
-            ripeness_level = 'FullRipe'
-            print(f'{ripeness_level}')
+            ripeness_level = 'FullRipe' 
         else:
             print('unknow input')
 
