@@ -44,9 +44,9 @@ def on_message(client, userdata, msg):
         else:
             print('unknow input')
 
-    if ripeness_level is not None:
-        print(f'{ripeness_level}')
-        start_process(ripeness_level)
+        if ripeness_level is not None:
+            print(f'{ripeness_level}')
+            start_process(ripeness_level)
 
         #threading.Thread(target=gpio_loop_and_sleep).start()
     else :
