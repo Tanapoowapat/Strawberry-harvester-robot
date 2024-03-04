@@ -26,22 +26,22 @@ def on_message(client, userdata, msg):
         client.publish("sys_nano/status", 3)
         client.disconnect()
         # sys.exit()
-    if 'ripeness' in json_data:
-        client.publish("sys_nano/status", 2)
-        ripeness_level = None
-        ripeness = json_data['ripeness']
-    if ripeness == 1:
-        ripeness_level = 'Unripe' 
-    elif ripeness == 2:
-        ripeness_level = 'SmallRipe' 
-    elif ripeness == 3:
-        ripeness_level = 'MediumRipe' 
-    elif ripeness == 4:
-        ripeness_level = 'Ripe' 
-    elif ripeness == 5:
-        ripeness_level = 'FullRipe' 
-    else:
-        print('unknow input')
+        if 'ripeness' in json_data:
+            client.publish("sys_nano/status", 2)
+            ripeness_level = None
+            ripeness = json_data['ripeness']
+        if ripeness == 1:
+            ripeness_level = 'Unripe' 
+        elif ripeness == 2:
+            ripeness_level = 'SmallRipe' 
+        elif ripeness == 3:
+            ripeness_level = 'MediumRipe' 
+        elif ripeness == 4:
+            ripeness_level = 'Ripe' 
+        elif ripeness == 5:
+            ripeness_level = 'FullRipe' 
+        else:
+            print('unknow input')
 
     if ripeness_level is not None:
         print(f'{ripeness_level}')
