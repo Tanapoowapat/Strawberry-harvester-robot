@@ -65,19 +65,18 @@ def show_camera(model, ripeness):
 
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
-                print("Data received in show_camera function:", received_data)
                 if received_data == 'close':
                     print("Close")
                     close_camera(video_capture)
                     #wait until received open from arduino
                     while received_data_queue.empty():
-                        print(received_data_queue.get()) 
-                        if received_data_queue.get() == "open":
-                            print('OPEN')
+                        data = received_data_queue.get() 
+                        if data == "open":
+                            print(data)
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
-                        elif received_data_queue.get() == 'finish':
-                            print("Finish")
+                        elif data == 'finish':
+                            print(data)
                             close_camera(video_capture)
                             return True
                 # if received_data == 'finish':
