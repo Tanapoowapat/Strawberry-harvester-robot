@@ -4,7 +4,10 @@ from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
 from utils.utils import fps
-import time
+import paho.mqtt.client as mqtt
+
+
+
 #test ciomim
 WINDOW_TITLE = "USB Camera"
 
@@ -74,6 +77,7 @@ def show_camera(model, ripeness):
                     #wait until received open from arduino
                     while received_data_queue.empty():
                         pass
+                        print("\n")
                         if received_data_queue.get() == "open":
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
@@ -85,7 +89,11 @@ def show_camera(model, ripeness):
                             close_camera(video_capture)
                             FINISH = True
                             break
-        
+                if received_data_queue.get() == 'finish':
+                            print("finish")
+                            close_camera(video_capture)
+                            FINISH = True
+                            break
 
     
             if COUNT >= 50:
@@ -94,8 +102,9 @@ def show_camera(model, ripeness):
                 break
 
             if FINISH:
+                print("Task Finish...")
                 break
-            
+
             results = model(frame, stream=True, conf=0.2, device=0)
             prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
             print("FPS:", show_fps)
