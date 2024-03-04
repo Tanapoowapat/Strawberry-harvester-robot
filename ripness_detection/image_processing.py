@@ -4,8 +4,10 @@ from ultralytics import YOLO
 from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
 from process import process_frame
 from utils.utils import fps
-
+import time
+#test ciomim
 WINDOW_TITLE = "USB Camera"
+
 PIPELINE = " ! ".join([
     "v4l2src device=/dev/video0",
     "video/x-raw, width=640, height=480, framerate=30/1",
@@ -53,72 +55,75 @@ def show_camera(model, ripeness):
                     print('Start Motor...')
                     send_data_to_arduino("start")
                     MOTOR = True
-                    print('close camera...')
                     close_camera(video_capture)
-
+                    while received_data_queue.empty():
+                        
+                        if received_data_queue.get() == "open":
+                            print("start camera...")
+                            video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                            break
 
             if not received_data_queue.empty():
-                print("Data received in show_camera function:",  received_data_queue.get() )
-                if  received_data_queue.get()  == 'close':
+                received_data = received_data_queue.get() 
+                print("Data received in show_camera function:", received_data)
+                if received_data == 'close':
                     print("Close")
                     close_camera(video_capture)
                     #wait until received open from arduino
-                elif  received_data_queue.get()  == 'open':
-                    print("Open")
-                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                elif received_data_queue.get() == 'finish':
-                    print("Finish")
-                    close_camera(video_capture)
-                    break
+                    while received_data_queue.empty():
+                        
+                        if received_data_queue.get() == "open":
+                            video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+                            break
+                # elif received_data_queue.get() == 'finish':
+                #     print("Finish")
+                #     close_camera(video_capture)
+                #     break
     
             if COUNT >= 50:
                 send_data_to_arduino("full")
                 close_camera(video_capture)
                 break
 
-
-            if video_capture.isOpened():
-                results = model(frame, stream=True, conf=0.2, device=0)
-                prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
-                print("FPS:", show_fps)
-                for result in results:
-                    py = process_frame(result, ripeness)
-                    if py is not None:
-                        for pos_y in py:
-                            if pos_y >= 22 or pos_y <= 11:
-                                print("Error: Invalid position")
+            results = model(frame, stream=True, conf=0.2, device=0)
+            prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
+            print("FPS:", show_fps)
+            for result in results:
+                py = process_frame(result, ripeness)
+                if py is not None:
+                    for pos_y in py:
+                        if pos_y >= 22 or pos_y <= 11:
+                            print("Error: Invalid position")
+                        else:
+                            print(pos_y)
+                            close_camera(video_capture)
+                            status = send_data_to_arduino(pos_y)
+                            if status:
+                                print("Data sent to Arduino...")
+                                while received_data_queue.empty():
+                                    pass
+                                if received_data_queue.get() == "success":
+                                    print(f'Position {pos_y} sent to Arduino successfully')
+                                    COUNT += 1
+                                    print(COUNT)
+                                    video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             else:
-                                print(pos_y)
-                                close_camera(video_capture)
-                                status = send_data_to_arduino(pos_y)
-                                if status:
-                                    print("Data sent to Arduino...")
-                                    while received_data_queue.empty():
-                                        pass
-                                    if received_data_queue.get() == "success":
-                                        print(f'Position {pos_y} sent to Arduino successfully')
-                                        COUNT += 1
-                                        print(COUNT)
-                                        video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                                else:
-                                    print("Error: Unable to send data to Arduino")
-                else:
-                    pass
-            else:
-                pass
+                                print("Error: Unable to send data to Arduino")
+                    else:
+                        pass
             
-            # # Display the captured frame
-            # # cv2.imshow(WINDOW_TITLE, frame)
-            # keyCode = cv2.waitKey(10) & 0xFF
-            # if keyCode == 27 or keyCode == ord('q'):
-            #     send_data_to_arduino("stop")
-            #     MOTOR = False
-            #     break
+            # Display the captured frame
+            # cv2.imshow(WINDOW_TITLE, frame)
+            keyCode = cv2.waitKey(10) & 0xFF
+            if keyCode == 27 or keyCode == ord('q'):
+                send_data_to_arduino("stop")
+                MOTOR = False
+                break
             
     else:
         print("Error: Unable to open camera")
 
-    # close_camera(video_capture)
+    close_camera(video_capture)
 
 def start_process(ripeness):
     """Load YOLO model and start camera processing."""
