@@ -97,7 +97,7 @@ def show_camera(model, ripeness):
                 if py is not None:
                     for pos_y in py:
                         if pos_y >= 22 or pos_y <= 11:
-                            print("Error: Invalid position")
+                            print(f"Error: Invalid position {pos_y}")
                         else:
                             print(pos_y)
                             close_camera(video_capture)
@@ -135,8 +135,4 @@ def start_process(ripeness):
     model = YOLO('model/segment/best.engine', task='segment')
     show_camera(model, ripeness)
 
-task = start_process("FullRipe")
-if task:
-    print('Task Done!...')
-else: 
-    print('Wrong!')
+start_process("FullRipe")
