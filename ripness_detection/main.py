@@ -47,6 +47,7 @@ def on_message(client, userdata, msg):
         if ripeness_level is not None:
             print(f'{ripeness_level}')
             strawbery_count = start_process(ripeness_level)
+            print(strawbery_count)
             client.publish("sys_nano/count", strawbery_count)
 
 
