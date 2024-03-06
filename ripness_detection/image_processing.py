@@ -84,7 +84,7 @@ def show_camera(model, ripeness):
                 #     close_camera(video_capture)
                 #     return True
     
-            if COUNT >= 50:
+            if COUNT >= 4:
                 send_data_to_arduino("full")
                 close_camera(video_capture)
                 break
