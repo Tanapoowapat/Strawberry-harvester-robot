@@ -46,7 +46,10 @@ def on_message(client, userdata, msg):
 
         if ripeness_level is not None:
             print(f'{ripeness_level}')
-            start_process(ripeness_level)
+            strawbery_count = start_process(ripeness_level)
+            client.publish("sys_nano/count", strawbery_count)
+
+
 
         #threading.Thread(target=gpio_loop_and_sleep).start()
     else :

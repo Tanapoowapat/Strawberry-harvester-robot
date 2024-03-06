@@ -78,7 +78,7 @@ def show_camera(model, ripeness):
                         elif data == 'finish':
                             print(data)
                             close_camera(video_capture)
-                            return True
+                            return COUNT
                 # if received_data == 'finish':
                 #     print("Finish")
                 #     close_camera(video_capture)
@@ -87,6 +87,7 @@ def show_camera(model, ripeness):
             if COUNT >= 4:
                 send_data_to_arduino("full")
                 close_camera(video_capture)
+                return COUNT    
                 break
 
             results = model(frame, stream=True, conf=0.2, device=0)
