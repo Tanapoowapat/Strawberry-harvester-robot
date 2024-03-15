@@ -1,13 +1,17 @@
 import cv2
 import threading
 from ultralytics import YOLO
-from arduio_connect import send_data_to_arduino, arduino_receive_callback, received_data_queue, arduino
+from arduio_connect import (
+    send_data_to_arduino,
+    arduino_receive_callback,
+    received_data_queue,
+    arduino
+)
 from process import process_frame
 from utils.utils import fps
-import time
-#test ciomim
-WINDOW_TITLE = "USB Camera"
 
+# Constants
+WINDOW_TITLE = "USB Camera"
 PIPELINE = " ! ".join([
     "v4l2src device=/dev/video0",
     "video/x-raw, width=640, height=480, framerate=30/1",
@@ -21,78 +25,71 @@ def close_camera(cap):
     cap.release()
     cv2.destroyAllWindows()
 
+def start_arduino_receive_thread():
+    """Start a thread to receive data from Arduino."""
+    print('Start Arduino receive thread...')
+    arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+    arduino_receive_thread.daemon = True
+    arduino_receive_thread.start()
+
+def start_motor():
+    """Start the motor."""
+    print('Start Motor...')
+    send_data_to_arduino("start")
+
 def show_camera(model, ripeness):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
-    model(source='test_image/14.png', conf=0.9, half=True, device=0)  # Warm up model.
-    new_frame_time = 0
-    prev_frame_time = 0
-    print('Start Reading Camera...')
+
+    # Initialize video capture and mask
     video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
+    print('Start Reading Camera...')
     mask = cv2.imread("mask.png")
     MOTOR = False
-    if video_capture.isOpened():
 
-        #Clear State for Arduino
-        send_data_to_arduino("stop")
-        
-        # Start a thread to receive data from Arduino
-        print('Start Arduino receive thread...')
-        arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
-        arduino_receive_thread.daemon = True
-        arduino_receive_thread.start()
+    if video_capture.isOpened():
+        close_camera(video_capture)
+        start_arduino_receive_thread()
 
         while True:
             _, frame = video_capture.read()
             frame = cv2.bitwise_and(frame, mask)
-            
-            # if not ret:
-            #     print("Error: Unable to read frame from camera")
-            #     break
-            
-            if not MOTOR:
-                if video_capture.isOpened():
-                    print('Start Motor...')
-                    send_data_to_arduino("start")
-                    MOTOR = True
-                    close_camera(video_capture)
-                    while received_data_queue.empty():
-                        
-                        if received_data_queue.get() == "open":
-                            print("start camera...")
-                            video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
-                            break
 
+            if not MOTOR:
+                start_motor()
+                MOTOR = True
+                
+            # Check if received data from Arduino
             if not received_data_queue.empty():
                 received_data = received_data_queue.get() 
                 if received_data == 'close':
-                    print("Close")
+                    # Close the camera
                     close_camera(video_capture)
-                    #wait until received open from arduino
-                    while received_data_queue.empty():
+                    # Process incoming messages until 'open' or 'finish' is received
+                    while True:
                         data = received_data_queue.get() 
                         if data == "open":
                             print(data)
+                            # Reopen the camera
                             video_capture = cv2.VideoCapture(PIPELINE, cv2.CAP_GSTREAMER)
                             break
                         elif data == 'finish':
                             print(data)
+                            # Close the camera and return the count
                             close_camera(video_capture)
                             return COUNT
-                # if received_data == 'finish':
-                #     print("Finish")
-                #     close_camera(video_capture)
-                #     return True
-    
-            if COUNT >= 4:
+                        
+            # If more than 50 strawberries are detected
+            if COUNT >= 50:
                 send_data_to_arduino("full")
                 close_camera(video_capture)
-                return COUNT    
-                break
-
+                return COUNT
+            # predict the video frame
             results = model(frame, stream=True, conf=0.2, device=0)
-            prev_frame_time, show_fps = fps(new_frame_time, prev_frame_time)
+            _, show_fps = fps()
             print("FPS:", show_fps)
+            
+            #If found Strawberry
             for result in results:
                 py = process_frame(result, ripeness)
                 if py is not None:
@@ -116,9 +113,7 @@ def show_camera(model, ripeness):
                                 print("Error: Unable to send data to Arduino")
                     else:
                         pass
-            
-            # Display the captured frame
-            # cv2.imshow(WINDOW_TITLE, frame)
+
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
                 send_data_to_arduino("stop")

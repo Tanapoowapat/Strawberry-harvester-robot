@@ -3,25 +3,20 @@ import numpy as np
 from ripness_detection import calculate_percent_in_mask
 from utils.utils import calculate_centroid
 
-def extract_contour_and_mask(c):
-    '''Extract contour and mask from the result
-        Args: c: result from model
-        Returns: b_mask: binary mask
-    '''
-    
-    contour = c.masks.xy.pop()
-    contour = contour.astype(np.int32)
-    contour = contour.reshape(-1, 1, 2)
+def extract_contour_and_mask(result):
+    """Extract contour and mask from the result."""
+    contour = result.masks.xy.pop().astype(np.int32).reshape(-1, 1, 2)
 
     # Draw contour onto mask
-    b_mask = np.zeros(c.orig_img.shape[:2], np.uint8)
+    b_mask = np.zeros(result.orig_img.shape[:2], np.uint8)
     _ = cv2.drawContours(b_mask, [contour], -1, (255, 255, 255), cv2.FILLED)
 
     mask3ch = cv2.cvtColor(b_mask, cv2.COLOR_GRAY2BGR)
 
     return b_mask, mask3ch
 
-def ripness_level(red_percent, green_percent):
+def ripeness_level(red_percent, green_percent):
+    """Determine ripeness level based on color percentages."""
     if red_percent >= 80 and green_percent < 10:
         return 'FullRipe'
     elif 80 < red_percent >= 70 and green_percent < 20:
@@ -34,12 +29,11 @@ def ripness_level(red_percent, green_percent):
         return 'Unripe'
 
 def find_horizon_center(box):
-    '''Find the Horizontal Center of the box
-       Args: box: tuple of (x1, y1, x2, y2)
-    '''
-    return (int(box[0]) + int(box[2]))//2
+    """Find the Horizontal Center of the box."""
+    return (int(box[0]) + int(box[2])) // 2
 
 def find_strawberry(result, input_ripeness):
+    """Find strawberries with the specified ripeness level."""
     strawberries = []
     img = result.orig_img
     for _, c in enumerate(result):
@@ -51,18 +45,17 @@ def find_strawberry(result, input_ripeness):
         mask_crop = mask3ch[y1:y2, x1:x2]
 
         red_color_percent, green_color_percent = calculate_percent_in_mask(iso_crop, mask_crop)
-        ripeness = ripness_level(red_color_percent, green_color_percent)
+        ripeness = ripeness_level(red_color_percent, green_color_percent)
         boxes = (x1, y1, x2, y2)
 
         if ripeness == input_ripeness:
             _, center_y = calculate_centroid(boxes)
-            # Adjust y-coordinate to center_y - 80
-            #cv2.circle(img, (center_x, center_y-80), 5, (0, 255, 0), 2)
             pos_y = 16 + (10 - (center_y * 0.0264583333))
             strawberries.append(pos_y)
             
     return strawberries
             
 def process_frame(result, ripeness):
+    """Process the frame and find strawberries with the specified ripeness level."""
     strawberries = find_strawberry(result, ripeness)
     return strawberries

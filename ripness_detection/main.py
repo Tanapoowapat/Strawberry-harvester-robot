@@ -5,8 +5,8 @@ import threading
 import sys
 from image_processing import start_process
 
-
 def on_connect(client, userdata, flags, rc):
+    """Callback function for when the client connects to the broker."""
     client.subscribe("user/input")
     if rc == 0:
         client.publish("sys_nano/status", 1)
@@ -16,56 +16,40 @@ def on_connect(client, userdata, flags, rc):
         print("Connection failed with code", rc)
 
 def on_message(client, userdata, msg):
+    """Callback function for when the client receives a message."""
     received_data = msg.payload
     json_data = json.loads(received_data)
-    # print(f'Server sand : {json_data} Type: {type(json_data)}\n')
-    ch = json_data['ripeness']
+    ch = json_data.get('ripeness')
 
-    if ch == 'q' :
+    if ch == 'q':
         print('Received "q". Stopping the program.')
         client.publish("sys_nano/status", 3)
         client.disconnect()
-        # sys.exit()
-    if 'ripeness' in json_data:
+    elif 'ripeness' in json_data:
         client.publish("sys_nano/status", 2)
         time.sleep(1)
-        ripeness_level = None
-        ripeness = json_data['ripeness']
-        if ripeness == 1:
-            ripeness_level = 'Unripe' 
-        elif ripeness == 2:
-            ripeness_level = 'SmallRipe' 
-        elif ripeness == 3:
-            ripeness_level = 'MediumRipe' 
-        elif ripeness == 4:
-            ripeness_level = 'Ripe' 
-        elif ripeness == 5:
-            ripeness_level = 'FullRipe' 
-        else:
-            print('unknow input')
+        ripeness_level = {
+            1: 'Unripe',
+            2: 'SmallRipe',
+            3: 'MediumRipe',
+            4: 'Ripe',
+            5: 'FullRipe'
+        }.get(json_data['ripeness'])
 
         if ripeness_level is not None:
             print(f'{ripeness_level}')
             strawbery_count = start_process(ripeness_level)
             print(strawbery_count)
             client.publish("sys_nano/count", strawbery_count)
-
-
-
-        #threading.Thread(target=gpio_loop_and_sleep).start()
-    else :
+    else:
         client.publish("sys_nano/status", 1)
         print('Stop it')
-    # onlime_sta()
-   # print('====================\nServer Status Stanby\n====================')
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
 client.connect("localhost", 1883, 60)
-# client.loop_forever()
-
 client.loop_start()
 
 try:
