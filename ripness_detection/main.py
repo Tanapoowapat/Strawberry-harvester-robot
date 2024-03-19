@@ -1,52 +1,60 @@
-import cv2
+import paho.mqtt.client as mqtt
 import time
-from process import load_model, load_webcam, process_frame
-from utils.utils import resize_mask
+import json
+import threading
+import sys
+from image_processing import start_process
 
-# Constants Model&Frame
-WEBCAM_DIVICE = 0 #ใช้ Webcam เปลี่ยนตรงนี้เป็น 0
-model_path = "./model/segment/best.pt"
-#FRAME_SIZE = (640, 640)
+def on_connect(client, userdata, flags, rc):
+    """Callback function for when the client connects to the broker."""
+    client.subscribe("user/input")
+    if rc == 0:
+        client.publish("sys_nano/status", 1)
+        print("======================\nConnected successfully\n======================")
+    else:
+        client.publish("sys_nano/status", 3)
+        print("Connection failed with code", rc)
 
+def on_message(client, userdata, msg):
+    """Callback function for when the client receives a message."""
+    received_data = msg.payload
+    json_data = json.loads(received_data)
+    ch = json_data.get('ripeness')
 
-def main():
-    print("Load Model...")
-    model = load_model(model_path)
-    cap = load_webcam(WEBCAM_DIVICE)
-    if not cap.isOpened():
-        print("Error: Could not open webcam.")
-        exit()
-    
-    # Constants FPS
-    prev_frame_time = 0
-    new_frame_time = 0
+    if ch == 'q':
+        print('Received "q". Stopping the program.')
+        client.publish("sys_nano/status", 3)
+        client.disconnect()
+    elif 'ripeness' in json_data:
+        client.publish("sys_nano/status", 2)
+        time.sleep(1)
+        ripeness_level = {
+            1: 'Unripe',
+            2: 'SmallRipe',
+            3: 'MediumRipe',
+            4: 'Ripe',
+            5: 'FullRipe'
+        }.get(json_data['ripeness'])
 
-    COUNT = 0
+        if ripeness_level is not None:
+            print(f'{ripeness_level}')
+            strawbery_count = start_process(ripeness_level)
+            print(strawbery_count)
+            client.publish("sys_nano/count", strawbery_count)
+    else:
+        client.publish("sys_nano/status", 1)
+        print('Stop it')
+
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect("localhost", 1883, 60)
+client.loop_start()
+
+try:
     while True:
-        ret, frame = cap.read()
-
-        if not ret:
-            print("Error: Could not read frame.")
-            break
-
-        # Process the frame
-        frame, ripness, box = process_frame(frame, model)
-        if ripness == "Full Ripe" and box is not None:
-            COUNT += 1
-            print(f"Count: {COUNT}")
-            time.sleep(10)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
-        new_frame_time = time.time()
-        fps = 1 / (new_frame_time - prev_frame_time)
-        prev_frame_time = new_frame_time
-        fps = str(int(fps))
-        cv2.putText(frame, "FPS: " + fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
-        cv2.imshow("frame", frame)
-
-
-    cap.release()
-    cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    main()
+        time.sleep(1)
+except KeyboardInterrupt:
+    client.disconnect()
+    sys.exit()

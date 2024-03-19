@@ -159,6 +159,15 @@ cython_debug/
 
 #ignore Folder
 test_image/
+ripness_detection/test_image/
+
+#ignore all .mp4 files
+*.mp4
+
+#ignore test_model folder
+Strawberry-harvester-robot/ripness_detection/model/test_model
+Strawberry-harvester-robot/ripness_detection/model/test_model/*.pt
+Strawberry-harvester-robot/ripness_detection/model/test_model/*.engine
 
 
 # PyCharm
