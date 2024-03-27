@@ -1,12 +1,7 @@
 import cv2
 import threading
 from ultralytics import YOLO
-from arduio_connect import (
-    send_data_to_arduino,
-    arduino_receive_callback,
-    received_data_queue,
-    arduino
-)
+from arduio_connect import Arduino
 from process import process_frame
 from utils.utils import fps
 
@@ -19,25 +14,27 @@ PIPELINE = " ! ".join([
     "video/x-raw, format=(string)BGR",
     "appsink"
 ])
+PORT = '/dev/ttyACM0'
+RATE = 9600
 
 def close_camera(cap):
     """Release the camera and close any OpenCV windows."""
     cap.release()
     cv2.destroyAllWindows()
 
-def start_arduino_receive_thread():
+def start_arduino_receive_thread(arduino):
     """Start a thread to receive data from Arduino."""
     print('Start Arduino receive thread...')
-    arduino_receive_thread = threading.Thread(target=arduino_receive_callback, args=(arduino,))
+    arduino_receive_thread = threading.Thread(target=arduino.callback, args=(arduino,))
     arduino_receive_thread.daemon = True
     arduino_receive_thread.start()
 
-def start_motor():
+def start_motor(arduino):
     """Start the motor."""
     print('Start Motor...')
-    send_data_to_arduino("start")
+    arduino.send_data("start")
 
-def show_camera(model, ripeness):
+def show_camera(model, ripeness, arduino):
     """Display camera feed and send data to Arduino."""
     COUNT = 0
 
@@ -50,7 +47,7 @@ def show_camera(model, ripeness):
     if video_capture.isOpened():
         close_camera(video_capture)
         start_arduino_receive_thread()
-
+    
         while True:
             _, frame = video_capture.read()
             frame = cv2.bitwise_and(frame, mask)
@@ -60,14 +57,14 @@ def show_camera(model, ripeness):
                 MOTOR = True
                 
             # Check if received data from Arduino
-            if not received_data_queue.empty():
-                received_data = received_data_queue.get() 
+            if not arduino.empty():
+                received_data = arduino.received_data_queue.get() 
                 if received_data == 'close':
                     # Close the camera
                     close_camera(video_capture)
                     # Process incoming messages until 'open' or 'finish' is received
                     while True:
-                        data = received_data_queue.get() 
+                        data = arduino.received_data_queue.get() 
                         if data == "open":
                             print(data)
                             # Reopen the camera
@@ -81,7 +78,7 @@ def show_camera(model, ripeness):
                         
             # If more than 50 strawberries are detected
             if COUNT >= 50:
-                send_data_to_arduino("full")
+                arduino.send_data("full")
                 close_camera(video_capture)
                 return COUNT
             # predict the video frame
@@ -99,12 +96,12 @@ def show_camera(model, ripeness):
                         else:
                             print(pos_y)
                             close_camera(video_capture)
-                            status = send_data_to_arduino(pos_y)
+                            status = arduino.send_data(pos_y)
                             if status:
                                 print("Data sent to Arduino...")
-                                while received_data_queue.empty():
+                                while arduino.received_data_queue.empty():
                                     pass
-                                if received_data_queue.get() == "success":
+                                if arduino.received_data_queue.get() == "success":
                                     print(f'Position {pos_y} sent to Arduino successfully')
                                     COUNT += 1
                                     print(COUNT)
@@ -116,7 +113,7 @@ def show_camera(model, ripeness):
 
             keyCode = cv2.waitKey(10) & 0xFF
             if keyCode == 27 or keyCode == ord('q'):
-                send_data_to_arduino("stop")
+                arduino.send_data("stop")
                 MOTOR = False
                 break
             
@@ -128,5 +125,6 @@ def show_camera(model, ripeness):
 def start_process(ripeness):
     """Load YOLO model and start camera processing."""
     print('Load Model...')
+    arduino = Arduino(port=PORT, baud_rate=RATE, timeout=1)
     model = YOLO('model/segment/best.engine', task='segment')
-    show_camera(model, ripeness)
+    show_camera(model, ripeness, arduino)
