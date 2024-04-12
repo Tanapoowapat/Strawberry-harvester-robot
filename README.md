@@ -8,3 +8,6 @@ Strawberry harvesting robot capable of determining ripeness levels based on asse
 
 # Install
 ```pip install -r requirements.txt```
+
+# Video
+https://www.youtube.com/watch?v=1Wc99kYZU4s
